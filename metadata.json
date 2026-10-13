@@ -1,0 +1,6 @@
+{
+  "name": "VOLTRA MINI — WhatsApp Bot Creator",
+  "description": "A fast, API-connected WhatsApp bot creation platform for Voltra bots with instant pairing code and QR linking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
