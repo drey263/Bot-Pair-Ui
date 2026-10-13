@@ -14,6 +14,7 @@ import {
 import { useWorkflow } from '../context/WorkflowContext';
 import { PairingMethod } from '../api/types';
 import { QRCodeView } from './QRCodeView';
+import botAvatar from '../assets/bot-avatar.jpg';
 
 export const CleanPairingView: React.FC = () => {
   const {
@@ -85,18 +86,42 @@ export const CleanPairingView: React.FC = () => {
 
   return (
     <div className="w-full max-w-md mx-auto px-4 py-8 sm:py-14 space-y-6">
-      {/* Google Stitch Title Header */}
-      <div className="text-center space-y-2">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-400/10 border border-cyan-400/20 text-xs font-medium text-cyan-300">
-          <Zap className="w-3.5 h-3.5 fill-cyan-400 text-cyan-400" />
-          <span>Voltra Stitch</span>
+      {/* Bot Avatar & Google Stitch Title Header */}
+      <div className="text-center space-y-3 flex flex-col items-center">
+        <div className="relative group">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden p-1 bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 shadow-xl shadow-cyan-500/25 ring-4 ring-cyan-400/10 transition-transform duration-300 group-hover:scale-105">
+            <img
+              src={botAvatar}
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (target.src !== 'https://files.solnets.indevs.in/image/9Wpg1791874804831.jpg') {
+                  target.src = 'https://files.solnets.indevs.in/image/9Wpg1791874804831.jpg';
+                }
+              }}
+              alt="Voltra Bot Avatar"
+              className="w-full h-full object-cover rounded-full bg-slate-900"
+            />
+          </div>
+          <span
+            className={`absolute bottom-0.5 right-0.5 w-4 h-4 rounded-full border-2 border-[#07090e] ${
+              isConnected ? 'bg-emerald-400' : 'bg-cyan-400'
+            }`}
+            title={isConnected ? 'Connected' : 'Ready'}
+          />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-          WhatsApp Pairing
-        </h1>
-        <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
-          Select your preferred pairing mode to link your device.
-        </p>
+
+        <div className="space-y-1">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-400/10 border border-cyan-400/20 text-xs font-medium text-cyan-300">
+            <Zap className="w-3.5 h-3.5 fill-cyan-400 text-cyan-400" />
+            <span>Voltra Stitch</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+            WhatsApp Pairing
+          </h1>
+          <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
+            Select your preferred pairing mode to link your device.
+          </p>
+        </div>
       </div>
 
       {/* Main Google Stitch Card */}

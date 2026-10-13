@@ -1,6 +1,7 @@
 import React from 'react';
 import { Zap, Clock, AlertCircle, PlusCircle } from 'lucide-react';
 import { useWorkflow } from '../context/WorkflowContext';
+import botAvatar from '../assets/bot-avatar.jpg';
 
 export const Navbar: React.FC = () => {
   const {
@@ -19,8 +20,18 @@ export const Navbar: React.FC = () => {
           }}
           className="flex items-center gap-2.5 text-left group focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 rounded-xl shrink-0 whitespace-nowrap cursor-pointer"
         >
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-400/20 group-hover:shadow-cyan-400/40 transition-all">
-            <Zap className="w-4 h-4 text-slate-950 fill-slate-950 stroke-[2.5]" />
+          <div className="w-8 h-8 rounded-full overflow-hidden p-0.5 bg-gradient-to-br from-cyan-400 to-blue-600 shadow-md shadow-cyan-400/20 group-hover:scale-105 transition-all">
+            <img
+              src={botAvatar}
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (target.src !== 'https://files.solnets.indevs.in/image/9Wpg1791874804831.jpg') {
+                  target.src = 'https://files.solnets.indevs.in/image/9Wpg1791874804831.jpg';
+                }
+              }}
+              alt="Voltra Bot"
+              className="w-full h-full object-cover rounded-full bg-slate-900"
+            />
           </div>
           <span className="text-sm sm:text-base font-bold tracking-tight text-white group-hover:text-cyan-300 transition-colors">
             VOLTRA MINI
