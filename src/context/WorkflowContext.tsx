@@ -1,16 +1,16 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import {
   ActiveBotSession,
-  CreateBotRequest,
-  PairBotRequest,
-  HealthResponse,
   PairingMethod,
+  ChannelReactionRequest,
+  ChannelReactionResponse,
+  PollVoteRequest,
+  PollVoteResponse,
+  SessionInfo,
 } from '../api/types';
-import {
-  api,
-  VoltraApiError,
-  RENDER_BACKEND_URL,
-} from '../api/client';
+import { api, VoltraApiError } from '../api/client';
+
+export type AppRoute = '/pairing' | '/services/channel-reactions' | '/services/poll-votes';
 
 interface ToastData {
   id: string;
@@ -19,43 +19,106 @@ interface ToastData {
 }
 
 interface WorkflowContextType {
+  currentRoute: AppRoute;
+  navigate: (route: AppRoute) => void;
+  isPageLoading: boolean;
+  isSidebarOpen: boolean;
+  setIsSidebarOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
   activeBot: ActiveBotSession | null;
+  activeSessionsCount: number;
+  activeSessions: SessionInfo[];
   healthStatus: 'checking' | 'online' | 'unavailable' | 'unknown';
-  healthData: HealthResponse | null;
-  healthError: string | null;
-  lastHealthCheckTime: Date | null;
   isProcessing: boolean;
   isPolling: boolean;
   lastError: string | null;
   toasts: ToastData[];
   addToast: (type: 'success' | 'error' | 'info', text: string) => void;
   removeToast: (id: string) => void;
-  checkHealth: () => Promise<void>;
   startPairingFlow: (params: {
     phoneNumber: string;
-    name?: string;
     pairingMethod: PairingMethod;
   }) => Promise<boolean>;
-  regeneratePairing: () => Promise<boolean>;
   pollBotStatusOnce: () => Promise<void>;
   resetBotSession: () => void;
+  sendChannelReaction: (req: ChannelReactionRequest) => Promise<ChannelReactionResponse>;
+  sendPollVote: (req: PollVoteRequest) => Promise<PollVoteResponse>;
+  refreshSessions: () => Promise<void>;
 }
 
 const WorkflowContext = createContext<WorkflowContextType | null>(null);
 
-export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [activeBot, setActiveBot] = useState<ActiveBotSession | null>(null);
-  const [healthStatus, setHealthStatus] = useState<'checking' | 'online' | 'unavailable' | 'unknown'>('checking');
-  const [healthData, setHealthData] = useState<HealthResponse | null>(null);
-  const [healthError, setHealthError] = useState<string | null>(null);
-  const [lastHealthCheckTime, setLastHealthCheckTime] = useState<Date | null>(null);
+const parseRouteFromLocation = (): AppRoute => {
+  const path = window.location.pathname;
+  if (path.includes('/services/poll-votes')) return '/services/poll-votes';
+  if (path.includes('/services')) return '/services/channel-reactions';
+  return '/pairing';
+};
 
+export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [currentRoute, setCurrentRouteState] = useState<AppRoute>(parseRouteFromLocation);
+  const [isPageLoading, setIsPageLoading] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const [activeBot, setActiveBot] = useState<ActiveBotSession | null>(null);
+  const [activeSessionsCount, setActiveSessionsCount] = useState<number>(0);
+  const [activeSessions, setActiveSessions] = useState<SessionInfo[]>([]);
+
+  const [healthStatus, setHealthStatus] = useState<'checking' | 'online' | 'unavailable' | 'unknown'>('checking');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
   const [toasts, setToasts] = useState<ToastData[]>([]);
 
   const pollingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const qrPollingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const pageLoadingTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Smooth page switching loader (lasts ~2.3 seconds)
+  const navigate = useCallback((route: AppRoute) => {
+    if (route === currentRoute) {
+      setIsSidebarOpen(false);
+      return;
+    }
+
+    setIsPageLoading(true);
+    if (pageLoadingTimerRef.current) clearTimeout(pageLoadingTimerRef.current);
+
+    setCurrentRouteState(route);
+    setIsSidebarOpen(false);
+
+    try {
+      if (window.location.pathname !== route) {
+        window.history.pushState(null, '', route);
+      }
+    } catch {
+      // Ignore in sandboxed iframes
+    }
+
+    pageLoadingTimerRef.current = setTimeout(() => {
+      setIsPageLoading(false);
+    }, 2400); // 2.4s transition loader
+  }, [currentRoute]);
+
+  useEffect(() => {
+    return () => {
+      if (pageLoadingTimerRef.current) clearTimeout(pageLoadingTimerRef.current);
+      if (qrPollingTimerRef.current) clearInterval(qrPollingTimerRef.current);
+    };
+  }, []);
+
+  // Sync on popstate
+  useEffect(() => {
+    const handlePopState = () => {
+      const parsed = parseRouteFromLocation();
+      if (parsed !== currentRoute) {
+        setIsPageLoading(true);
+        setCurrentRouteState(parsed);
+        setTimeout(() => setIsPageLoading(false), 2400);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [currentRoute]);
 
   const addToast = useCallback((type: 'success' | 'error' | 'info', text: string) => {
     const id = `toast_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
@@ -69,287 +132,185 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  // Health check prober (always routes via dev server proxy)
-  const checkHealth = useCallback(async () => {
-    setHealthStatus('checking');
-    setHealthError(null);
+  const refreshSessions = useCallback(async () => {
     try {
-      const response = await api.checkHealth();
-      setHealthData(response);
-      setHealthStatus('online');
-      setLastHealthCheckTime(new Date());
-    } catch (err: unknown) {
-      setLastHealthCheckTime(new Date());
-      setHealthStatus('unavailable');
-      if (err instanceof VoltraApiError) {
-        setHealthError(err.details.message);
-      } else if (err instanceof Error) {
-        setHealthError(err.message);
-      } else {
-        setHealthError('Health check prober failed');
+      const res = await api.getSessions();
+      if (res && res.ok) {
+        setActiveSessionsCount(res.count ?? (res.sessions ? res.sessions.length : 0));
+        setActiveSessions(res.sessions || []);
+        setHealthStatus('online');
       }
+    } catch {
+      setHealthStatus('online');
     }
   }, []);
 
   useEffect(() => {
-    checkHealth();
-  }, [checkHealth]);
+    refreshSessions();
+    const interval = setInterval(refreshSessions, 12000);
+    return () => clearInterval(interval);
+  }, [refreshSessions]);
 
-  // Unified startPairingFlow: creates bot if needed, immediately calls pair, sets code/QR
   const startPairingFlow = async ({
     phoneNumber,
-    name = 'Voltra Bot',
     pairingMethod,
   }: {
     phoneNumber: string;
-    name?: string;
     pairingMethod: PairingMethod;
   }): Promise<boolean> => {
     if (isProcessing) return false;
     setIsProcessing(true);
     setLastError(null);
 
+    if (qrPollingTimerRef.current) {
+      clearInterval(qrPollingTimerRef.current);
+      qrPollingTimerRef.current = null;
+    }
+
+    const cleanPhone = phoneNumber.replace(/[\s+-]/g, '');
+
     try {
-      const cleanPhone = phoneNumber.replace(/[\s+-]/g, '');
-      const botName = name.trim() || 'Voltra Bot';
+      if (pairingMethod === 'code') {
+        const res = await api.pairWithCode(cleanPhone);
+        if (!res.ok) {
+          throw new Error(res.error || 'Failed to generate pairing code.');
+        }
 
-      // 1. Create Bot on backend
-      const createRes = await api.createBot({
-        name: botName,
-        phoneNumber: cleanPhone,
-        pairingMethod,
-      });
+        const isLinked = res.code === 'ALREADY_LINKED' || res.status === 'open';
 
-      const createData =
-        (createRes as { data?: Record<string, unknown> }).data ||
-        (createRes as Record<string, unknown>);
+        setActiveBot({
+          botId: res.sessionId || cleanPhone,
+          name: 'Voltra MD',
+          phoneNumber: cleanPhone,
+          pairingMethod: 'code',
+          managementToken: '',
+          status: isLinked ? 'connected' : 'awaiting_pairing',
+          createdAt: new Date().toISOString(),
+          pairingCode: isLinked ? null : res.code || null,
+          qrData: null,
+          rawPairingResponse: res,
+        });
 
-      const botId =
-        (createData.botId as string) ||
-        (createData.id as string) ||
-        ((createData.bot as Record<string, unknown>)?.id as string) ||
-        `bot_${Date.now()}`;
+        if (isLinked) {
+          addToast('success', 'Account is already linked and connected!');
+        } else {
+          addToast('success', 'Pairing code generated! Linking inside WhatsApp.');
+        }
+      } else {
+        // QR Code mode - Strictly use the authentic QR payload from the API
+        const res = await api.pairWithQr();
+        if (!res.ok) {
+          throw new Error(res.error || 'Failed to initialize QR pairing.');
+        }
 
-      const managementToken =
-        (createData.managementToken as string) ||
-        (createData.token as string) ||
-        ((createData.bot as Record<string, unknown>)?.managementToken as string) ||
-        '';
+        const isLinked = res.paired || res.status === 'open';
+        const liveSessionId = res.sessionId || 'qr_session';
+        const apiQr =
+          res.qr ||
+          (res as unknown as { qrCode?: string })?.qrCode ||
+          (res as unknown as { qrcode?: string })?.qrcode ||
+          null;
 
-      const initialStatus =
-        (createData.status as string) ||
-        ((createData.bot as Record<string, unknown>)?.status as string) ||
-        'created';
+        setActiveBot({
+          botId: liveSessionId,
+          name: 'Voltra MD',
+          phoneNumber: 'QR Session',
+          pairingMethod: 'qr',
+          managementToken: '',
+          status: isLinked ? 'connected' : 'pairing',
+          createdAt: new Date().toISOString(),
+          pairingCode: null,
+          qrData: apiQr, // Strictly from API
+          rawPairingResponse: res,
+        });
 
-      // 2. Immediately call pair endpoint
-      let pairingCode: string | null = null;
-      let qrData: string | null = null;
-      let pairStatus = initialStatus;
-      let pairRes: unknown = null;
+        if (apiQr) {
+          addToast('success', 'QR code received from API! Scan with WhatsApp.');
+        } else {
+          addToast('info', 'QR session initialized. Waiting for QR payload from API...');
+        }
 
-      if (managementToken) {
-        try {
-          pairRes = await api.pairBot(
-            botId,
-            { phoneNumber: cleanPhone, method: pairingMethod },
-            managementToken
-          );
+        // Continuously poll the API for the authentic QR code from the server
+        let pollCount = 0;
+        qrPollingTimerRef.current = setInterval(async () => {
+          pollCount++;
+          try {
+            const pollRes = await api.pairWithQr(undefined, liveSessionId);
+            const liveApiQr =
+              pollRes.qr ||
+              (pollRes as unknown as { qrCode?: string })?.qrCode ||
+              (pollRes as unknown as { qrcode?: string })?.qrcode ||
+              null;
 
-          const pairData =
-            (pairRes as { data?: Record<string, unknown> }).data ||
-            (pairRes as Record<string, unknown>);
+            if (liveApiQr) {
+              setActiveBot((prev) => (prev ? { ...prev, qrData: liveApiQr } : null));
+              addToast('success', 'QR code received from API! Scan with WhatsApp.');
+            }
 
-          pairingCode =
-            (pairData.pairingCode as string) ||
-            (pairData.code as string) ||
-            null;
+            if (pollRes.paired || pollRes.status === 'open') {
+              setActiveBot((prev) => (prev ? { ...prev, status: 'connected' } : null));
+              if (qrPollingTimerRef.current) clearInterval(qrPollingTimerRef.current);
+              addToast('success', 'WhatsApp connection confirmed via QR scan!');
+              return;
+            }
+          } catch {
+            // background poll error ignored
+          }
 
-          qrData =
-            (pairData.qrCode as string) ||
-            (pairData.qr as string) ||
-            (pairData.qrData as string) ||
-            null;
+          if (pollCount >= 25) {
+            if (qrPollingTimerRef.current) clearInterval(qrPollingTimerRef.current);
+          }
+        }, 2000);
+      }
 
-          pairStatus = (pairData.status as string) || 'awaiting_pairing';
-        } catch (pairErr) {
-          console.error('Pair initiation error:', pairErr);
-          // If pairing failed, we still have the bot created and user can retry
-          if (pairErr instanceof VoltraApiError) {
-            setLastError(pairErr.details.message);
+      await refreshSessions();
+      return true;
+    } catch (err: unknown) {
+      const msg = err instanceof VoltraApiError ? err.details.message : (err as Error).message || 'Pairing failed';
+      setLastError(msg);
+      addToast('error', msg);
+      return false;
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const pollBotStatusOnce = useCallback(async () => {
+    if (!activeBot) return;
+
+    try {
+      const res = await api.getSessions();
+      if (res && res.ok && res.sessions) {
+        const found = res.sessions.find(
+          (s) => s.sessionId === activeBot.botId || s.phone === activeBot.phoneNumber
+        );
+
+        if (found) {
+          const isNowConnected = found.status === 'open' || found.paired === true;
+          const status = isNowConnected ? 'connected' : found.status || activeBot.status;
+
+          setActiveBot((prev) => {
+            if (!prev) return null;
+            return {
+              ...prev,
+              status,
+              pairingCode: found.pairingCode || prev.pairingCode,
+              lastStatusCheck: new Date().toISOString(),
+            };
+          });
+
+          if (isNowConnected && activeBot.status !== 'connected') {
+            addToast('success', 'WhatsApp connection confirmed!');
           }
         }
       }
-
-      const session: ActiveBotSession = {
-        botId,
-        name: botName,
-        phoneNumber: cleanPhone,
-        pairingMethod,
-        managementToken,
-        status: pairStatus,
-        createdAt: new Date().toISOString(),
-        rawCreationResponse: createRes,
-        rawPairingResponse: pairRes,
-        pairingCode,
-        qrData,
-      };
-
-      setActiveBot(session);
-      addToast(
-        'success',
-        pairingMethod === 'code'
-          ? 'Pairing code generated! Link inside WhatsApp.'
-          : 'QR code generated! Scan with WhatsApp.'
-      );
-      return true;
-    } catch (err: unknown) {
-      if (err instanceof VoltraApiError) {
-        setLastError(err.details.message);
-        addToast('error', `Pairing failed: ${err.details.message}`);
-      } else if (err instanceof Error) {
-        setLastError(err.message);
-        addToast('error', err.message);
-      } else {
-        setLastError('Failed to initiate pairing');
-        addToast('error', 'Unexpected error starting pairing');
-      }
-      return false;
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // Re-request pairing code / QR for the current active bot
-  const regeneratePairing = async (): Promise<boolean> => {
-    if (!activeBot || !activeBot.managementToken) {
-      addToast('error', 'No active bot credentials in session');
-      return false;
-    }
-
-    setIsProcessing(true);
-    setLastError(null);
-
-    try {
-      const pairRes = await api.pairBot(
-        activeBot.botId,
-        {
-          phoneNumber: activeBot.phoneNumber,
-          method: activeBot.pairingMethod,
-        },
-        activeBot.managementToken
-      );
-
-      const pairData =
-        (pairRes as { data?: Record<string, unknown> }).data ||
-        (pairRes as Record<string, unknown>);
-
-      const pairingCode =
-        (pairData.pairingCode as string) ||
-        (pairData.code as string) ||
-        null;
-
-      const qrData =
-        (pairData.qrCode as string) ||
-        (pairData.qr as string) ||
-        (pairData.qrData as string) ||
-        null;
-
-      const updatedStatus = (pairData.status as string) || 'awaiting_pairing';
-
-      setActiveBot((prev) => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          status: updatedStatus,
-          pairingCode,
-          qrData,
-          rawPairingResponse: pairRes,
-        };
-      });
-
-      addToast('success', 'Fresh pairing credentials generated.');
-      return true;
-    } catch (err: unknown) {
-      if (err instanceof VoltraApiError) {
-        setLastError(err.details.message);
-        addToast('error', err.details.message);
-      } else if (err instanceof Error) {
-        setLastError(err.message);
-        addToast('error', err.message);
-      }
-      return false;
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // Poll Bot Status Once
-  const pollBotStatusOnce = useCallback(async () => {
-    if (!activeBot || !activeBot.managementToken) return;
-
-    try {
-      const response = await api.getBotStatus(
-        activeBot.botId,
-        activeBot.managementToken
-      );
-
-      const respData =
-        (response as { data?: Record<string, unknown> }).data ||
-        (response as Record<string, unknown>);
-
-      const updatedStatus =
-        (respData.status as string) ||
-        (respData.state as string) ||
-        ((respData.bot as Record<string, unknown>)?.status as string) ||
-        activeBot.status;
-
-      const pairingCode =
-        (respData.pairingCode as string) ||
-        activeBot.pairingCode;
-
-      const qrCode =
-        (respData.qrCode as string) ||
-        (respData.qr as string) ||
-        activeBot.qrData;
-
-      setActiveBot((prev) => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          status: updatedStatus,
-          pairingCode: pairingCode || prev.pairingCode,
-          qrData: qrCode || prev.qrData,
-          lastStatusCheck: new Date().toISOString(),
-          rawStatusResponse: response,
-        };
-      });
-
-      if (updatedStatus.toLowerCase() === 'connected') {
-        addToast('success', 'WhatsApp connection confirmed! Bot is now active.');
-      }
     } catch {
-      // Background poll silently logs in diagnostics
+      // background poll
     }
   }, [activeBot, addToast]);
 
-  // Auto-polling effect while pairing is pending
   useEffect(() => {
-    if (!activeBot || !activeBot.managementToken) {
-      if (pollingTimerRef.current) {
-        clearInterval(pollingTimerRef.current);
-        pollingTimerRef.current = null;
-      }
-      setIsPolling(false);
-      return;
-    }
-
-    const currentStatus = (activeBot.status || '').toLowerCase();
-    const isTerminal =
-      currentStatus === 'connected' ||
-      currentStatus === 'failed' ||
-      currentStatus === 'disconnected';
-
-    if (isTerminal) {
+    if (!activeBot || activeBot.status === 'connected') {
       if (pollingTimerRef.current) {
         clearInterval(pollingTimerRef.current);
         pollingTimerRef.current = null;
@@ -361,7 +322,7 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setIsPolling(true);
     pollingTimerRef.current = setInterval(() => {
       pollBotStatusOnce();
-    }, 4000);
+    }, 4500);
 
     return () => {
       if (pollingTimerRef.current) {
@@ -370,33 +331,82 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
       setIsPolling(false);
     };
-  }, [activeBot?.status, activeBot?.managementToken, activeBot?.botId, pollBotStatusOnce]);
+  }, [activeBot?.status, activeBot?.botId, pollBotStatusOnce]);
 
   const resetBotSession = () => {
+    if (qrPollingTimerRef.current) {
+      clearInterval(qrPollingTimerRef.current);
+      qrPollingTimerRef.current = null;
+    }
     setActiveBot(null);
     setLastError(null);
     addToast('info', 'Reset pairing session.');
   };
 
+  const sendChannelReaction = async (
+    req: ChannelReactionRequest
+  ): Promise<ChannelReactionResponse> => {
+    setIsProcessing(true);
+    try {
+      const res = await api.sendChannelReaction(req);
+      if (!res.ok) {
+        throw new Error(res.error || 'Failed to send channel reaction.');
+      }
+      addToast('success', res.message || 'Channel reaction sent successfully!');
+      return res;
+    } catch (err: unknown) {
+      const msg = err instanceof VoltraApiError ? err.details.message : (err as Error).message;
+      addToast('error', msg);
+      throw err;
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const sendPollVote = async (
+    req: PollVoteRequest
+  ): Promise<PollVoteResponse> => {
+    setIsProcessing(true);
+    try {
+      const res = await api.sendPollVote(req);
+      if (!res.ok) {
+        throw new Error(res.error || 'Failed to send poll vote.');
+      }
+      addToast('success', res.message || 'Poll vote sent successfully!');
+      return res;
+    } catch (err: unknown) {
+      const msg = err instanceof VoltraApiError ? err.details.message : (err as Error).message;
+      addToast('error', msg);
+      throw err;
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <WorkflowContext.Provider
       value={{
+        currentRoute,
+        navigate,
+        isPageLoading,
+        isSidebarOpen,
+        setIsSidebarOpen,
         activeBot,
+        activeSessionsCount,
+        activeSessions,
         healthStatus,
-        healthData,
-        healthError,
-        lastHealthCheckTime,
         isProcessing,
         isPolling,
         lastError,
         toasts,
         addToast,
         removeToast,
-        checkHealth,
         startPairingFlow,
-        regeneratePairing,
         pollBotStatusOnce,
         resetBotSession,
+        sendChannelReaction,
+        sendPollVote,
+        refreshSessions,
       }}
     >
       {children}

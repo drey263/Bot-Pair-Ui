@@ -1,32 +1,41 @@
 import React from 'react';
-import { Zap, Clock, AlertCircle, PlusCircle } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { useWorkflow } from '../context/WorkflowContext';
-import botAvatar from '../assets/bot-avatar.jpg';
+import botAvatar from '../assets/bot-avatar.png';
 
 export const Navbar: React.FC = () => {
   const {
-    healthStatus,
-    activeBot,
-    resetBotSession,
+    setIsSidebarOpen,
+    navigate,
+    currentRoute,
   } = useWorkflow();
 
+  const getPageTitle = () => {
+    if (currentRoute === '/services/poll-votes') return 'Poll Votes';
+    if (currentRoute.startsWith('/services')) return 'Channel Reactions';
+    return 'Device Pairing';
+  };
+
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-white/5 bg-[#07090e]/80 backdrop-blur-xl">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-6">
-        {/* Brand Wordmark */}
+    <header className="sticky top-0 z-30 w-full border-b border-white/[0.04] bg-[#020408]/90 backdrop-blur-xl">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        {/* Left: Brand Wordmark */}
         <button
-          onClick={() => {
-            if (activeBot) resetBotSession();
-          }}
-          className="flex items-center gap-2.5 text-left group focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 rounded-xl shrink-0 whitespace-nowrap cursor-pointer"
+          onClick={() => navigate('/pairing')}
+          className="flex items-center gap-2.5 text-left group focus:outline-none rounded-xl shrink-0 whitespace-nowrap cursor-pointer border-none bg-transparent p-0"
         >
           <div className="w-8 h-8 rounded-full overflow-hidden p-0.5 bg-gradient-to-br from-cyan-400 to-blue-600 shadow-md shadow-cyan-400/20 group-hover:scale-105 transition-all">
             <img
               src={botAvatar}
+              width="32"
+              height="32"
+              loading="eager"
+              decoding="sync"
+              style={{ imageRendering: '-webkit-optimize-contrast' }}
               onError={(e) => {
                 const target = e.currentTarget;
-                if (target.src !== 'https://files.solnets.indevs.in/image/9Wpg1791874804831.jpg') {
-                  target.src = 'https://files.solnets.indevs.in/image/9Wpg1791874804831.jpg';
+                if (target.src !== 'https://files.solnets.indevs.in/image/VSmg8file_0000000090dc821192432be3544dfe6f.png') {
+                  target.src = 'https://files.solnets.indevs.in/image/VSmg8file_0000000090dc821192432be3544dfe6f.png';
                 }
               }}
               alt="Voltra Bot"
@@ -34,42 +43,24 @@ export const Navbar: React.FC = () => {
             />
           </div>
           <span className="text-sm sm:text-base font-bold tracking-tight text-white group-hover:text-cyan-300 transition-colors">
-            VOLTRA MINI
+            VOLTRA MD
+          </span>
+          <span className="hidden sm:inline-block text-slate-600 font-normal">/</span>
+          <span className="hidden sm:inline-block text-xs font-medium text-slate-400">
+            {getPageTitle()}
           </span>
         </button>
 
-        {/* Status & Action */}
-        <div className="flex items-center gap-3 shrink-0">
-          {activeBot && (
-            <button
-              onClick={() => resetBotSession()}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 transition-all whitespace-nowrap shrink-0 cursor-pointer active:scale-95"
-            >
-              <PlusCircle className="w-3.5 h-3.5 text-cyan-400" />
-              <span>New Pairing</span>
-            </button>
-          )}
-
-          <div className="flex items-center gap-2">
-            {healthStatus === 'online' && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50" />
-                <span>Online</span>
-              </span>
-            )}
-            {healthStatus === 'checking' && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium">
-                <Clock className="w-3.5 h-3.5 animate-spin" />
-                <span>Checking...</span>
-              </span>
-            )}
-            {(healthStatus === 'unavailable' || healthStatus === 'unknown') && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium">
-                <AlertCircle className="w-3.5 h-3.5" />
-                <span>Offline</span>
-              </span>
-            )}
-          </div>
+        {/* Right: Borderless Hamburger Button (in place of the online card) */}
+        <div className="flex items-center">
+          <button
+            onClick={() => setIsSidebarOpen((prev) => !prev)}
+            className="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 focus:outline-none transition-colors cursor-pointer border-none bg-transparent"
+            aria-label="Open menu"
+            title="Open navigation menu"
+          >
+            <Menu className="w-6 h-6 stroke-[2]" />
+          </button>
         </div>
       </div>
     </header>

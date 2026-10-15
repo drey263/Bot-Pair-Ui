@@ -1,24 +1,26 @@
 /**
  * Voltra Mini - Official API Client Module
- * Communicates with the real WhatsApp Bot API at https://pro-bot-aykk.onrender.com/api/v1
+ * Communicates with the real WhatsApp Bot API at https://voltra-bot-su5n.onrender.com
  */
 
 import {
-  CreateBotRequest,
-  CreateBotResponse,
-  PairBotRequest,
-  PairBotResponse,
-  BotStatusResponse,
+  ChannelReactionRequest,
+  ChannelReactionResponse,
+  PollVoteRequest,
+  PollVoteResponse,
+  PairCodeResponse,
+  PairQrResponse,
+  SessionsResponse,
   HealthResponse,
   ApiErrorDetails,
   ApiLogEntry,
 } from './types';
 
-export const RENDER_BACKEND_URL = 'https://pro-bot-aykk.onrender.com';
-export const DEFAULT_BASE_URL = ''; // Always route via dev server proxy to avoid browser CORS
+export const RENDER_BACKEND_URL = 'https://voltra-bot-su5n.onrender.com';
+export const DEFAULT_BASE_URL = 'https://voltra-bot-su5n.onrender.com'; // Hardcoded for Render deployment
 export const DEFAULT_API_PREFIX = '/api/v1';
 
-// Custom error class with rich HTTP & CORS diagnostic metadata
+// Custom error class with rich HTTP diagnostic metadata
 export class VoltraApiError extends Error {
   public details: ApiErrorDetails;
 
@@ -29,7 +31,7 @@ export class VoltraApiError extends Error {
   }
 }
 
-// In-memory request log store for Developer Diagnostics (redacts all credentials)
+// In-memory request log store for Diagnostics
 type LogSubscriber = (logs: ApiLogEntry[]) => void;
 class DiagnosticsStore {
   private logs: ApiLogEntry[] = [];
@@ -62,47 +64,12 @@ class DiagnosticsStore {
   }
 
   private notify() {
-    const copy = this.getLogs();
-    this.subscribers.forEach((fn) => fn(copy));
+    const current = this.getLogs();
+    this.subscribers.forEach((fn) => fn(current));
   }
 }
 
 export const diagnosticsStore = new DiagnosticsStore();
-
-// Sanitizer to guarantee management tokens, passwords, and auth headers NEVER enter logs or error displays
-export function sanitizeDataForDiagnostics(data: unknown): unknown {
-  if (data === null || data === undefined) return data;
-  if (typeof data !== 'object') return data;
-
-  if (Array.isArray(data)) {
-    return data.map((item) => sanitizeDataForDiagnostics(item));
-  }
-
-  const sensitiveKeys = [
-    'managementtoken',
-    'token',
-    'authorization',
-    'x-management-token',
-    'secret',
-    'password',
-    'apikey',
-    'api_key',
-    'bearer',
-  ];
-
-  const sanitized: Record<string, unknown> = {};
-  for (const [key, val] of Object.entries(data as Record<string, unknown>)) {
-    const lowerKey = key.toLowerCase();
-    if (sensitiveKeys.some((k) => lowerKey.includes(k))) {
-      sanitized[key] = '[REDACTED_MANAGEMENT_TOKEN]';
-    } else if (typeof val === 'object' && val !== null) {
-      sanitized[key] = sanitizeDataForDiagnostics(val);
-    } else {
-      sanitized[key] = val;
-    }
-  }
-  return sanitized;
-}
 
 export interface RequestOptions extends RequestInit {
   timeoutMs?: number;
@@ -131,269 +98,254 @@ export class VoltraApiClient {
     return `${this.baseUrl}${this.prefix}`;
   }
 
-  /**
-   * Internal core fetch wrapper with AbortController timeout,
-   * safe JSON parsing, detailed error classification, and sanitized diagnostics logging.
-   */
   private async request<T>(
     endpoint: string,
     options: RequestOptions = {}
   ): Promise<T> {
     const {
-      timeoutMs = 25000,
+      timeoutMs = 30000,
       managementToken,
-      headers: extraHeaders = {},
       baseUrlOverride,
-      ...fetchInit
+      headers: customHeaders = {},
+      ...fetchOptions
     } = options;
 
-    const base = baseUrlOverride
-      ? baseUrlOverride.replace(/\/+$/, '')
-      : this.getFullPrefixUrl();
+    const base = baseUrlOverride !== undefined ? baseUrlOverride : this.baseUrl;
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-    const fullUrl = `${base}${cleanEndpoint}`;
-    const method = (fetchInit.method || 'GET').toUpperCase();
-    const startTime = performance.now();
-    const logId = `req_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    
+    // Support non-prefixed routes (like /api/sessions)
+    const fullUrl = cleanEndpoint.startsWith('/api/')
+      ? `${base}${cleanEndpoint}`
+      : `${base}${this.prefix}${cleanEndpoint}`;
 
-    // Build headers (Never log authorization token values)
-    const headers: Record<string, string> = {
-      Accept: 'application/json',
-      ...(extraHeaders as Record<string, string>),
-    };
-
-    if (fetchInit.body && !headers['Content-Type']) {
-      headers['Content-Type'] = 'application/json';
-    }
-
-    if (managementToken) {
-      // Send both standard Bearer and customary x-management-token for maximum backend compatibility
-      headers['Authorization'] = `Bearer ${managementToken}`;
-      headers['x-management-token'] = managementToken;
-    }
-
-    // AbortController for strict timeout control
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-    let parsedRequestBody: unknown = undefined;
-    if (typeof fetchInit.body === 'string') {
-      try {
-        parsedRequestBody = JSON.parse(fetchInit.body);
-      } catch {
-        parsedRequestBody = fetchInit.body;
-      }
+    const headers = new Headers(customHeaders);
+    if (!headers.has('Content-Type') && fetchOptions.body) {
+      headers.set('Content-Type', 'application/json');
     }
+
+    if (managementToken) {
+      headers.set('Authorization', `Bearer ${managementToken}`);
+      headers.set('x-management-token', managementToken);
+    }
+
+    const startTime = Date.now();
+    let responseStatus: number | undefined;
+    let rawBodyText = '';
+    let isCorsOrNetwork = false;
 
     try {
       const response = await fetch(fullUrl, {
-        ...fetchInit,
+        ...fetchOptions,
         headers,
         signal: controller.signal,
       });
 
-      clearTimeout(timeoutId);
-      const durationMs = Math.round(performance.now() - startTime);
+      responseStatus = response.status;
+      rawBodyText = await response.text();
+      const durationMs = Date.now() - startTime;
 
-      // Read response content safely
-      const contentType = response.headers.get('content-type') || '';
-      let parsedBody: unknown;
-      let textBody = '';
-
+      let parsedData: unknown = null;
       try {
-        if (contentType.includes('application/json')) {
-          parsedBody = await response.json();
-        } else {
-          textBody = await response.text();
-          try {
-            parsedBody = JSON.parse(textBody);
-          } catch {
-            parsedBody = textBody;
-          }
-        }
-      } catch (parseErr) {
-        parsedBody = { _parseError: 'Unable to parse response body', raw: textBody };
+        parsedData = rawBodyText ? JSON.parse(rawBodyText) : {};
+      } catch {
+        parsedData = { raw: rawBodyText };
       }
 
-      // Check HTTP status
       if (!response.ok) {
-        let errorMessage = `HTTP ${response.status} (${response.statusText || 'Error'})`;
+        const errorMsg =
+          (parsedData as { error?: string | { message?: string } })?.error &&
+          typeof (parsedData as { error?: unknown }).error === 'string'
+            ? (parsedData as { error: string }).error
+            : (parsedData as { message?: string })?.message ||
+              `Request failed with status ${response.status}: ${response.statusText}`;
 
-        if (
-          parsedBody &&
-          typeof parsedBody === 'object' &&
-          'message' in (parsedBody as Record<string, unknown>)
-        ) {
-          errorMessage = String((parsedBody as Record<string, unknown>).message);
-        } else if (
-          parsedBody &&
-          typeof parsedBody === 'object' &&
-          'error' in (parsedBody as Record<string, unknown>)
-        ) {
-          const errVal = (parsedBody as Record<string, unknown>).error;
-          errorMessage = typeof errVal === 'string' ? errVal : JSON.stringify(errVal);
-        } else if (typeof parsedBody === 'string' && parsedBody.trim().length > 0) {
-          errorMessage = parsedBody.slice(0, 200);
-        }
-
-        const errorDetails: ApiErrorDetails = {
+        const details: ApiErrorDetails = {
           status: response.status,
           statusText: response.statusText,
-          message: errorMessage,
-          rawBody: parsedBody,
+          message: errorMsg,
+          rawBody: parsedData,
           isCorsOrNetwork: false,
           endpoint: cleanEndpoint,
-          method,
+          method: fetchOptions.method || 'GET',
           timestamp: new Date().toISOString(),
         };
 
-        // Record diagnostic entry (redacted)
         diagnosticsStore.addLog({
-          id: logId,
-          timestamp: errorDetails.timestamp,
-          method,
+          id: `log_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+          timestamp: details.timestamp,
+          method: details.method,
           endpoint: cleanEndpoint,
           fullUrl,
           status: response.status,
           durationMs,
           success: false,
           isCorsOrNetwork: false,
-          errorMessage,
-          sanitizedRequestBody: sanitizeDataForDiagnostics(parsedRequestBody),
-          sanitizedResponseBody: sanitizeDataForDiagnostics(parsedBody),
+          errorMessage: errorMsg,
+          sanitizedRequestBody: fetchOptions.body
+            ? JSON.parse(fetchOptions.body as string)
+            : undefined,
+          sanitizedResponseBody: parsedData,
         });
 
-        throw new VoltraApiError(errorDetails);
+        throw new VoltraApiError(details);
       }
 
-      // Record successful diagnostic entry (redacted)
       diagnosticsStore.addLog({
-        id: logId,
+        id: `log_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
         timestamp: new Date().toISOString(),
-        method,
+        method: fetchOptions.method || 'GET',
         endpoint: cleanEndpoint,
         fullUrl,
         status: response.status,
         durationMs,
         success: true,
         isCorsOrNetwork: false,
-        sanitizedRequestBody: sanitizeDataForDiagnostics(parsedRequestBody),
-        sanitizedResponseBody: sanitizeDataForDiagnostics(parsedBody),
+        sanitizedRequestBody: fetchOptions.body
+          ? JSON.parse(fetchOptions.body as string)
+          : undefined,
+        sanitizedResponseBody: parsedData,
       });
 
-      return parsedBody as T;
+      return parsedData as T;
     } catch (err: unknown) {
+      const durationMs = Date.now() - startTime;
       clearTimeout(timeoutId);
-      const durationMs = Math.round(performance.now() - startTime);
 
       if (err instanceof VoltraApiError) {
         throw err;
       }
 
-      const isAbort =
-        err instanceof DOMException && err.name === 'AbortError';
-      const isTypeError = err instanceof TypeError;
-
-      let message = 'An unexpected network error occurred';
-      let isCorsOrNetwork = false;
-
-      if (isAbort) {
-        message = `Request timed out after ${timeoutMs / 1000}s. The backend may be spinning up from sleep on Render, or the server is unresponsive.`;
-        isCorsOrNetwork = true;
-      } else if (isTypeError) {
-        // In browsers, fetch throws TypeError on CORS failure or network disconnection
-        message =
-          'Network request failed. This commonly occurs if the backend server is offline/sleeping on Render, or if the API does not allow requests from this browser origin (CORS restriction).';
-        isCorsOrNetwork = true;
-      } else if (err instanceof Error) {
-        message = err.message;
+      let errorMsg = 'Network connection failed.';
+      if (err instanceof Error) {
+        if (err.name === 'AbortError') {
+          errorMsg = `Request timed out after ${timeoutMs}ms.`;
+        } else if (err.message.includes('Failed to fetch')) {
+          isCorsOrNetwork = true;
+          errorMsg = 'Network error: could not connect to server.';
+        } else {
+          errorMsg = err.message;
+        }
       }
 
-      const errorDetails: ApiErrorDetails = {
-        status: 0,
-        statusText: isAbort ? 'TIMEOUT' : isCorsOrNetwork ? 'CORS_OR_NETWORK' : 'ERROR',
-        message,
+      const details: ApiErrorDetails = {
+        status: responseStatus || 0,
+        statusText: isCorsOrNetwork ? 'CORS / Network Error' : 'Unknown Error',
+        message: errorMsg,
+        rawBody: rawBodyText || null,
         isCorsOrNetwork,
         endpoint: cleanEndpoint,
-        method,
+        method: fetchOptions.method || 'GET',
         timestamp: new Date().toISOString(),
       };
 
       diagnosticsStore.addLog({
-        id: logId,
-        timestamp: errorDetails.timestamp,
-        method,
+        id: `log_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        timestamp: details.timestamp,
+        method: details.method,
         endpoint: cleanEndpoint,
         fullUrl,
-        status: 0,
+        status: responseStatus,
         durationMs,
         success: false,
         isCorsOrNetwork,
-        errorMessage: message,
-        sanitizedRequestBody: sanitizeDataForDiagnostics(parsedRequestBody),
+        errorMessage: errorMsg,
+        sanitizedRequestBody: fetchOptions.body
+          ? JSON.parse(fetchOptions.body as string)
+          : undefined,
       });
 
-      throw new VoltraApiError(errorDetails);
+      throw new VoltraApiError(details);
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 
-  /**
-   * GET /api/v1/health
-   * Check API availability and response.
-   */
+  // 1. Health check
   public async checkHealth(): Promise<HealthResponse> {
-    return this.request<HealthResponse>('/health', {
-      method: 'GET',
-      timeoutMs: 15000,
-    });
+    try {
+      return await this.request<HealthResponse>('/api/v1/health', {
+        method: 'GET',
+        timeoutMs: 12000,
+      });
+    } catch {
+      // Fallback to /api/sessions check if /health is not defined
+      return await this.request<HealthResponse>('/api/sessions', {
+        method: 'GET',
+        timeoutMs: 12000,
+      });
+    }
   }
 
-  /**
-   * POST /api/v1/bots
-   * Create a new bot. Does not retry automatically on timeout to prevent duplicate bots.
-   */
-  public async createBot(payload: CreateBotRequest): Promise<CreateBotResponse> {
-    return this.request<CreateBotResponse>('/bots', {
+  // 2. Pair with Code: POST /api/v1/pair/code (with fallback to /api/pair)
+  public async pairWithCode(phone: string): Promise<PairCodeResponse> {
+    const cleanPhone = phone.replace(/[\s+-]/g, '');
+    try {
+      return await this.request<PairCodeResponse>('/pair/code', {
+        method: 'POST',
+        body: JSON.stringify({
+          phone: cleanPhone,
+        }),
+      });
+    } catch {
+      // Fallback to /api/pair route
+      return this.request<PairCodeResponse>('/api/pair', {
+        method: 'POST',
+        body: JSON.stringify({
+          phone: cleanPhone,
+        }),
+      });
+    }
+  }
+
+  // 3. Pair with QR: POST /api/v1/pair/qr
+  public async pairWithQr(phone?: string, sessionId?: string): Promise<PairQrResponse> {
+    const payload: Record<string, string> = {};
+    if (phone) payload.phone = phone.replace(/[\s+-]/g, '');
+    if (sessionId) payload.sessionId = sessionId;
+
+    return this.request<PairQrResponse>('/pair/qr', {
       method: 'POST',
       body: JSON.stringify(payload),
-      timeoutMs: 30000,
     });
   }
 
-  /**
-   * POST /api/v1/bots/:botId/pair
-   * Start WhatsApp pairing flow for pairing-code or QR.
-   */
-  public async pairBot(
-    botId: string,
-    payload: PairBotRequest,
-    managementToken: string
-  ): Promise<PairBotResponse> {
-    const encodedId = encodeURIComponent(botId);
-    return this.request<PairBotResponse>(`/bots/${encodedId}/pair`, {
+  // 4. Channel Reaction: POST /api/v1/services/chreact
+  public async sendChannelReaction(
+    request: ChannelReactionRequest
+  ): Promise<ChannelReactionResponse> {
+    return this.request<ChannelReactionResponse>('/services/chreact', {
       method: 'POST',
-      body: JSON.stringify(payload),
-      managementToken,
-      timeoutMs: 30000,
+      body: JSON.stringify({
+        url: request.url.trim(),
+        emoji: request.emoji.trim(),
+      }),
     });
   }
 
-  /**
-   * GET /api/v1/bots/:botId/status
-   * Retrieve current bot status.
-   */
-  public async getBotStatus(
-    botId: string,
-    managementToken: string
-  ): Promise<BotStatusResponse> {
-    const encodedId = encodeURIComponent(botId);
-    return this.request<BotStatusResponse>(`/bots/${encodedId}/status`, {
+  // 5. Poll Vote: POST /api/v1/services/pollvt
+  public async sendPollVote(
+    request: PollVoteRequest
+  ): Promise<PollVoteResponse> {
+    const optionNum = Number(request.option) || request.option;
+    return this.request<PollVoteResponse>('/services/pollvt', {
+      method: 'POST',
+      body: JSON.stringify({
+        url: request.url.trim(),
+        option: optionNum,
+      }),
+    });
+  }
+
+  // 6. Active Sessions: GET /api/sessions
+  public async getSessions(): Promise<SessionsResponse> {
+    return this.request<SessionsResponse>('/api/sessions', {
       method: 'GET',
-      managementToken,
-      timeoutMs: 15000,
+      timeoutMs: 10000,
     });
   }
 }
 
-// Global default singleton instance
 export const api = new VoltraApiClient();

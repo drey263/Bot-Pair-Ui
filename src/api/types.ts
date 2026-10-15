@@ -1,19 +1,72 @@
 /**
  * Voltra Mini - API Types & Data Contracts
- * Defined strictly according to the backend specification.
+ * Defined strictly according to the backend specification at voltra-bot-su5n.onrender.com
  */
 
 export type PairingMethod = 'code' | 'qr';
 
-export interface CreateBotRequest {
-  name: string;
-  phoneNumber: string;
-  pairingMethod: PairingMethod;
+export interface ChannelReactionRequest {
+  url: string;
+  emoji: string;
 }
 
-export interface PairBotRequest {
-  phoneNumber: string;
-  method: PairingMethod;
+export interface ChannelReactionResponse {
+  ok: boolean;
+  message?: string;
+  details?: {
+    newsletterJid?: string;
+    serverId?: string;
+    emoji?: string;
+    [key: string]: unknown;
+  };
+  successCount?: number;
+  failCount?: number;
+  error?: string;
+}
+
+export interface PollVoteRequest {
+  url: string;
+  option: number | string;
+}
+
+export interface PollVoteResponse {
+  ok: boolean;
+  message?: string;
+  successCount?: number;
+  failCount?: number;
+  error?: string;
+}
+
+export interface PairCodeResponse {
+  ok: boolean;
+  sessionId?: string;
+  code?: string;
+  status?: string;
+  error?: string;
+}
+
+export interface PairQrResponse {
+  ok: boolean;
+  sessionId?: string;
+  qr?: string | null;
+  status?: string;
+  paired?: boolean;
+  message?: string;
+  error?: string;
+}
+
+export interface SessionInfo {
+  sessionId: string;
+  phone?: string;
+  status?: string;
+  paired?: boolean;
+  pairingCode?: string | null;
+}
+
+export interface SessionsResponse {
+  ok: boolean;
+  count?: number;
+  sessions?: SessionInfo[];
 }
 
 export interface HealthResponse {
@@ -23,65 +76,6 @@ export interface HealthResponse {
   timestamp?: string | number;
   uptime?: number;
   service?: string;
-  [key: string]: unknown;
-}
-
-export interface CreateBotResponse {
-  // Common backend response keys
-  id?: string;
-  botId?: string;
-  status?: string;
-  managementToken?: string;
-  token?: string;
-  bot?: {
-    id?: string;
-    name?: string;
-    phoneNumber?: string;
-    pairingMethod?: PairingMethod;
-    status?: string;
-    managementToken?: string;
-    token?: string;
-    createdAt?: string;
-    [key: string]: unknown;
-  };
-  message?: string;
-  [key: string]: unknown;
-}
-
-export interface PairBotResponse {
-  code?: string;
-  pairingCode?: string;
-  qr?: string;
-  qrCode?: string;
-  qrData?: string;
-  status?: string;
-  message?: string;
-  data?: {
-    code?: string;
-    pairingCode?: string;
-    qr?: string;
-    qrCode?: string;
-    [key: string]: unknown;
-  };
-  [key: string]: unknown;
-}
-
-export interface BotStatusResponse {
-  status?: string;
-  state?: string;
-  botId?: string;
-  id?: string;
-  phoneNumber?: string;
-  pairingMethod?: PairingMethod;
-  updatedAt?: string;
-  message?: string;
-  connected?: boolean;
-  bot?: {
-    status?: string;
-    state?: string;
-    connected?: boolean;
-    [key: string]: unknown;
-  };
   [key: string]: unknown;
 }
 
@@ -116,7 +110,7 @@ export interface ActiveBotSession {
   name: string;
   phoneNumber: string;
   pairingMethod: PairingMethod;
-  managementToken: string; // Strictly kept in memory
+  managementToken: string;
   status: string;
   createdAt: string;
   rawCreationResponse?: unknown;

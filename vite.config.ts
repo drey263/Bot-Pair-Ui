@@ -19,12 +19,12 @@ export default defineConfig(() => {
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
       proxy: {
         '/api': {
-          target: 'https://pro-bot-aykk.onrender.com',
+          target: 'https://voltra-bot-su5n.onrender.com',
           changeOrigin: true,
           secure: false,
         },
         '/backend-proxy': {
-          target: 'https://pro-bot-aykk.onrender.com',
+          target: 'https://voltra-bot-su5n.onrender.com',
           changeOrigin: true,
           secure: false,
           rewrite: (p) => p.replace(/^\/backend-proxy/, ''),

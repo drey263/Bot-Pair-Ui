@@ -1,95 +1,159 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { RefreshCw, QrCode, AlertCircle } from 'lucide-react';
 
 interface QRCodeViewProps {
   qrData: string;
   size?: number;
   className?: string;
+  onRefresh?: () => void;
 }
 
 export const QRCodeView: React.FC<QRCodeViewProps> = ({
   qrData,
-  size = 240,
+  size = 220,
   className = '',
+  onRefresh,
 }) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [dataUrl, setDataUrl] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [renderError, setRenderError] = useState<string | null>(null);
 
-  const isImageDataUrl =
-    typeof qrData === 'string' &&
-    (qrData.startsWith('data:image/') || qrData.startsWith('blob:'));
-
   useEffect(() => {
-    if (!qrData || isImageDataUrl) return;
-
-    if (canvasRef.current) {
+    if (!qrData) {
+      setDataUrl(null);
       setRenderError(null);
-      QRCode.toCanvas(
-        canvasRef.current,
-        qrData,
-        {
-          width: size,
-          margin: 2,
-          color: {
-            dark: '#05070a', // deep ink
-            light: '#ffffff', // pure white contrast
-          },
-          errorCorrectionLevel: 'M',
-        },
-        (error) => {
-          if (error) {
-            setRenderError(error.message || 'Failed to render QR Code');
-          }
-        }
-      );
+      return;
     }
-  }, [qrData, size, isImageDataUrl]);
 
-  if (!qrData) {
+    setRenderError(null);
+
+    // 1. Direct Data URL or HTTP Image from API
+    if (
+      qrData.startsWith('data:image/') ||
+      qrData.startsWith('http://') ||
+      qrData.startsWith('https://') ||
+      qrData.startsWith('blob:')
+    ) {
+      setDataUrl(qrData);
+      setIsGenerating(false);
+      return;
+    }
+
+    // 2. Raw base64 PNG/JPEG from API without data URL header
+    if (qrData.startsWith('iVBORw0KGgo')) {
+      setDataUrl(`data:image/png;base64,${qrData}`);
+      setIsGenerating(false);
+      return;
+    }
+    if (qrData.startsWith('/9j/')) {
+      setDataUrl(`data:image/jpeg;base64,${qrData}`);
+      setIsGenerating(false);
+      return;
+    }
+
+    // 3. WhatsApp pairing payload string from API (e.g. 2@...)
+    let isCancelled = false;
+    setIsGenerating(true);
+
+    const generateQr = async () => {
+      try {
+        const url = await QRCode.toDataURL(qrData, {
+          width: Math.max(size * 2, 400),
+          margin: 2,
+          errorCorrectionLevel: 'M',
+          color: {
+            dark: '#05070a', // rich dark ink
+            light: '#ffffff', // pure white background
+          },
+        });
+        if (!isCancelled) {
+          setDataUrl(url);
+          setIsGenerating(false);
+        }
+      } catch (err: unknown) {
+        if (!isCancelled) {
+          setRenderError((err as Error).message || 'Failed to encode QR code from API');
+          setIsGenerating(false);
+        }
+      }
+    };
+
+    generateQr();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [qrData, size]);
+
+  if (!qrData || isGenerating) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 border border-dashed border-slate-800 rounded-xl bg-slate-950/40 text-slate-400 text-xs text-center">
-        <RefreshCw className="w-5 h-5 animate-spin mb-2 text-cyan-400" />
-        <span>Waiting for QR payload from API...</span>
+      <div className="flex flex-col items-center justify-center p-8 rounded-2xl bg-white/[0.02] text-slate-400 text-xs text-center min-h-[220px]">
+        <RefreshCw className="w-6 h-6 animate-spin mb-2.5 text-cyan-400" />
+        <span className="text-slate-300 font-medium">Generating QR scan code...</span>
+        <span className="text-slate-500 text-[11px] mt-1">Processing barcode from API</span>
       </div>
     );
   }
 
   if (renderError) {
     return (
-      <div className="flex flex-col items-center justify-center p-6 border border-rose-900/50 rounded-xl bg-rose-950/20 text-rose-300 text-xs text-center">
-        <AlertCircle className="w-5 h-5 mb-2 text-rose-400" />
-        <span className="font-medium">QR Rendering Issue</span>
+      <div className="flex flex-col items-center justify-center p-6 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs text-center min-h-[220px]">
+        <AlertCircle className="w-6 h-6 mb-2 text-rose-400" />
+        <span className="font-semibold text-rose-200">Unable to render API QR</span>
         <span className="text-slate-400 mt-1 max-w-xs">{renderError}</span>
-        <pre className="mt-3 p-2 bg-slate-900 rounded text-[10px] text-slate-300 font-mono break-all max-w-xs text-left">
-          {qrData.slice(0, 100)}...
-        </pre>
+        {onRefresh && (
+          <button
+            type="button"
+            onClick={onRefresh}
+            className="mt-3 px-3 py-1.5 rounded-full bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 text-xs font-medium cursor-pointer"
+          >
+            Retry from API
+          </button>
+        )}
       </div>
     );
   }
 
   return (
     <div className={`flex flex-col items-center ${className}`}>
-      <div className="p-3 bg-white rounded-xl shadow-lg shadow-cyan-950/30 border border-slate-700/60 transition-transform duration-200 hover:scale-[1.01]">
-        {isImageDataUrl ? (
+      {/* High contrast QR Frame */}
+      <div className="p-3 bg-white rounded-2xl shadow-xl shadow-cyan-950/40 border border-slate-200 transition-transform duration-200 hover:scale-[1.01] flex items-center justify-center">
+        {dataUrl ? (
           <img
-            src={qrData}
+            src={dataUrl}
             alt="WhatsApp Pairing QR Code"
             width={size}
             height={size}
-            className="rounded"
+            style={{ width: `${size}px`, height: `${size}px` }}
+            className="rounded-lg object-contain block"
           />
         ) : (
-          <canvas
-            ref={canvasRef}
-            className="rounded block"
-            aria-label="WhatsApp Pairing QR Code"
-          />
+          <div
+            style={{ width: `${size}px`, height: `${size}px` }}
+            className="flex flex-col items-center justify-center bg-slate-50 text-slate-500 rounded"
+          >
+            <QrCode className="w-10 h-10 text-slate-400 animate-pulse" />
+          </div>
         )}
       </div>
-      <p className="mt-3 text-xs text-slate-400 text-center">
-        Scan within WhatsApp to connect your bot instantly
-      </p>
+
+      <div className="mt-3 flex items-center gap-2">
+        <p className="text-[11px] text-slate-400 text-center">
+          Point your WhatsApp camera at the code
+        </p>
+        {onRefresh && (
+          <button
+            type="button"
+            onClick={onRefresh}
+            className="text-[11px] text-cyan-400 hover:text-cyan-300 flex items-center gap-1 cursor-pointer font-medium"
+            title="Refresh QR Code from API"
+          >
+            <RefreshCw className="w-3 h-3" />
+            <span>Refresh</span>
+          </button>
+        )}
+      </div>
     </div>
   );
 };
