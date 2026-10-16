@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Redirecting...</title>
+  <script>
+    (function() {
+      var path = window.location.pathname;
+      var search = window.location.search;
+      var hash = window.location.hash;
+      var full = path + search + hash;
+      // Direct straight to index.html with redirect query so SPA can immediately render the exact route
+      window.location.replace('/?redirect=' + encodeURIComponent(full));
+    })();
+  </script>
+</head>
+<body style="background-color: #020408; color: #ffffff; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+  <p>Loading Voltra MD Services...</p>
+</body>
+</html>

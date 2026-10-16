@@ -1,6 +1,6 @@
 /**
  * VOLTRA MINI — WhatsApp Bot Platform
- * Seamless, borderless dark UI & Services with Google Stitch design system & right sidebar.
+ * Seamless dark UI & Services with Google Stitch design system & right sidebar.
  */
 
 import React, { useState } from 'react';
@@ -16,19 +16,11 @@ import { ToastContainer } from './components/Toast';
 import botAvatar from './assets/bot-avatar.png';
 
 const MainLayout: React.FC = () => {
-  const { currentRoute, isPageLoading } = useWorkflow();
-
-  if (isPageLoading) {
-    return (
-      <div className="flex-1 flex flex-col justify-center items-center p-4 sm:p-6 w-full">
-        <PageTransitionLoader message="Loading..." />
-      </div>
-    );
-  }
+  const { currentRoute } = useWorkflow();
 
   if (currentRoute === '/services/channel-reactions') {
     return (
-      <div className="flex-1 flex flex-col justify-start items-center p-4 sm:p-6 w-full">
+      <div className="flex-1 flex flex-col justify-start items-center p-3 sm:p-5 w-full">
         <ChannelReactionsPage />
       </div>
     );
@@ -36,14 +28,14 @@ const MainLayout: React.FC = () => {
 
   if (currentRoute === '/services/poll-votes') {
     return (
-      <div className="flex-1 flex flex-col justify-start items-center p-4 sm:p-6 w-full">
+      <div className="flex-1 flex flex-col justify-start items-center p-3 sm:p-5 w-full">
         <PollVotesPage />
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col justify-start items-center p-4 sm:p-6 w-full">
+    <div className="flex-1 flex flex-col justify-start items-center p-3 sm:p-5 w-full">
       <CleanPairingView />
     </div>
   );
@@ -51,29 +43,14 @@ const MainLayout: React.FC = () => {
 
 const Footer: React.FC = () => {
   return (
-    <footer className="border-t border-white/[0.04] bg-[#020408] py-6 text-xs text-slate-500 w-full mt-auto">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <footer className="border-t-2 border-blue-500 shadow-[0_-4px_20px_rgba(59,130,246,0.35)] bg-[#020408] py-4 sm:py-5 text-xs text-slate-500 w-full mt-auto relative z-20">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-full overflow-hidden p-0.5 bg-gradient-to-br from-cyan-400 to-blue-600 shadow-sm shrink-0">
-            <img
-              src={botAvatar}
-              width="20"
-              height="20"
-              onError={(e) => {
-                const target = e.currentTarget;
-                if (target.src !== 'https://files.solnets.indevs.in/image/VSmg8file_0000000090dc821192432be3544dfe6f.png') {
-                  target.src = 'https://files.solnets.indevs.in/image/VSmg8file_0000000090dc821192432be3544dfe6f.png';
-                }
-              }}
-              alt="Voltra Bot"
-              className="w-full h-full object-cover rounded-full bg-slate-900"
-            />
-          </div>
-          <span className="font-semibold text-slate-300">VOLTRA MD</span>
+          <span className="font-semibold text-slate-300 text-xs">VOLTRA MD</span>
           <span className="text-slate-700">·</span>
-          <span>WhatsApp Multi-Device Platform</span>
+          <span className="text-[11px]">WhatsApp Multi-Device Platform</span>
         </div>
-        <div className="text-slate-600 text-[11px] font-mono">
+        <div className="text-slate-600 text-[10px] font-mono">
           Services & Pairing Engine
         </div>
       </div>
@@ -81,31 +58,60 @@ const Footer: React.FC = () => {
   );
 };
 
-export default function App() {
-  const [showSplash, setShowSplash] = useState(true);
+const AppContent: React.FC = () => {
+  const { isPageLoading } = useWorkflow();
+
+  const [showSplash, setShowSplash] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const p = `${window.location.pathname}${window.location.search}${window.location.hash}`.toLowerCase();
+      // If user navigated to a deep link like /services/channel-reactions, go directly to the UI without splash delay
+      if (
+        p.includes('services') ||
+        p.includes('channel') ||
+        p.includes('reaction') ||
+        p.includes('poll') ||
+        p.includes('pairing') ||
+        (window.location.pathname !== '/' && window.location.pathname !== '')
+      ) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  // In the loader screen, do not show the header and footer!
+  if (showSplash) {
+    return <SplashScreen onFinish={() => setShowSplash(false)} />;
+  }
+
+  if (isPageLoading) {
+    return <PageTransitionLoader message="Loading..." />;
+  }
 
   return (
+    <div className="min-h-screen bg-[#020408] text-slate-100 flex flex-col font-sans selection:bg-cyan-400/25 selection:text-cyan-200 relative">
+      {/* App Shell Header (Fixed & Sticky with Blue Divider) */}
+      <Navbar />
+
+      <main className="flex-1 flex flex-col relative z-10 w-full overflow-x-clip">
+        <MainLayout />
+      </main>
+
+      {/* Footer (Divided by glowing blue line) */}
+      <Footer />
+
+      {/* Right-Side Drawer Sidebar */}
+      <Sidebar />
+
+      <ToastContainer />
+    </div>
+  );
+};
+
+export default function App() {
+  return (
     <WorkflowProvider>
-      <div className="min-h-screen bg-[#020408] text-slate-100 flex flex-col font-sans selection:bg-cyan-400/25 selection:text-cyan-200 relative overflow-x-hidden">
-        {/* Splash Screen Loader */}
-        {showSplash && (
-          <SplashScreen onFinish={() => setShowSplash(false)} />
-        )}
-
-        {/* App Shell */}
-        <Navbar />
-
-        <main className="flex-1 flex flex-col relative z-10 w-full">
-          <MainLayout />
-        </main>
-
-        <Footer />
-
-        {/* Right-Side Drawer Sidebar */}
-        <Sidebar />
-
-        <ToastContainer />
-      </div>
+      <AppContent />
     </WorkflowProvider>
   );
 }

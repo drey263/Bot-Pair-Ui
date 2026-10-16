@@ -48,10 +48,45 @@ interface WorkflowContextType {
 const WorkflowContext = createContext<WorkflowContextType | null>(null);
 
 const parseRouteFromLocation = (): AppRoute => {
-  const path = window.location.pathname;
-  if (path.includes('/services/poll-votes')) return '/services/poll-votes';
-  if (path.includes('/services')) return '/services/channel-reactions';
-  return '/pairing';
+  if (typeof window === 'undefined') return '/pairing';
+
+  const path = window.location.pathname.toLowerCase();
+  const search = window.location.search.toLowerCase();
+  const hash = window.location.hash.toLowerCase();
+
+  // Handle SPA 404 redirect param if static host used ?redirect=... or ?p=...
+  let redirectTarget = '';
+  try {
+    const params = new URLSearchParams(window.location.search);
+    redirectTarget = (params.get('redirect') || params.get('p') || params.get('route') || '').toLowerCase();
+  } catch {
+    // ignore
+  }
+
+  const combined = `${path} ${search} ${hash} ${redirectTarget}`;
+
+  let targetRoute: AppRoute = '/pairing';
+  if (combined.includes('poll-votes') || combined.includes('poll-vote') || combined.includes('poll')) {
+    targetRoute = '/services/poll-votes';
+  } else if (
+    combined.includes('channel-reactions') ||
+    combined.includes('channel-reaction') ||
+    combined.includes('/services') ||
+    combined.includes('reactions')
+  ) {
+    targetRoute = '/services/channel-reactions';
+  }
+
+  // If we came in with a redirect query or hash, clean URL to match target route
+  if (typeof window !== 'undefined' && redirectTarget && window.history && window.history.replaceState) {
+    try {
+      window.history.replaceState(null, '', targetRoute);
+    } catch {
+      // ignore in sandboxed iframes
+    }
+  }
+
+  return targetRoute;
 };
 
 export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

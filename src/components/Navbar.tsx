@@ -17,7 +17,7 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-30 w-full border-b border-white/[0.04] bg-[#020408]/90 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 w-full border-b-2 border-blue-500 bg-[#020408]/95 backdrop-blur-xl shadow-[0_4px_20px_rgba(59,130,246,0.4)]">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         {/* Left: Brand Wordmark */}
         <button

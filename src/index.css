@@ -80,3 +80,19 @@
   animation: pulseGlow 2.4s ease-in-out infinite;
 }
 
+/* Circulating glowing spark border animation */
+@keyframes spinSpark {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-spark {
+  animation: spinSpark 4.5s linear infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+
