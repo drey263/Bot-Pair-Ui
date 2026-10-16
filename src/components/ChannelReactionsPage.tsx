@@ -4,14 +4,14 @@ import { useWorkflow } from '../context/WorkflowContext';
 import { ChannelReactionResponse } from '../api/types';
 import { GlowingFormContainer } from './GlowingFormContainer';
 
-// 18 popular emojis organized symmetrically in 3 columns (6 rows of 3, no 4th column)
-const POPULAR_EMOJIS = ['🔥', '❤️', '👍', '👏', '😂', '🎉', '🚀', '💯', '✨', '⚡', '😍', '🤩', '🙌', '👀', '🎯', '💡', '👑', '🌟'];
+// 12 user-selected emojis organized symmetrically in 3 columns (4 rows of 3, no 4th column)
+const POPULAR_EMOJIS = ['💯', '😂', '❤️', '👍', '🙏', '🌈', '🎉', '📌', '🚩', '🎯', '👀', '🤩'];
 
 export const ChannelReactionsPage: React.FC = () => {
   const { sendChannelReaction, isProcessing, navigate } = useWorkflow();
 
   const [url, setUrl] = useState('');
-  const [selectedEmojis, setSelectedEmojis] = useState<string[]>(['🔥']);
+  const [selectedEmojis, setSelectedEmojis] = useState<string[]>(['💯']);
   const [customEmoji, setCustomEmoji] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const [result, setResult] = useState<ChannelReactionResponse | null>(null);
