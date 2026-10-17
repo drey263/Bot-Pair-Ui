@@ -8,7 +8,7 @@ export default defineConfig(() => {
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(import.meta.dirname, '.'),
       },
     },
     server: {
@@ -19,12 +19,12 @@ export default defineConfig(() => {
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
       proxy: {
         '/api': {
-          target: 'https://voltra-bot-su5n.onrender.com',
+          target: 'https://pro-bot-production-3c56.up.railway.app',
           changeOrigin: true,
           secure: false,
         },
         '/backend-proxy': {
-          target: 'https://voltra-bot-su5n.onrender.com',
+          target: 'https://pro-bot-production-3c56.up.railway.app',
           changeOrigin: true,
           secure: false,
           rewrite: (p) => p.replace(/^\/backend-proxy/, ''),

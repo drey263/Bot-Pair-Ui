@@ -102,12 +102,12 @@ export const CleanPairingView: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-sm mx-auto px-3 py-4 sm:py-6 space-y-3.5 animate-in fade-in duration-200">
+    <div className="w-full max-w-[340px] sm:max-w-sm mx-auto px-2 sm:px-3 py-2 sm:py-4 space-y-2.5 sm:space-y-3 animate-in fade-in duration-200">
       {/* Rectangular Bot Banner with Circulating Glowing Spark Border */}
-      <div className="flex flex-col items-center text-center space-y-2.5">
-        <div className="relative rounded-2xl p-[1.5px] overflow-hidden group shadow-[0_0_24px_rgba(3,105,161,0.2)] mx-auto w-full max-w-[280px]">
+      <div className="flex flex-col items-center text-center space-y-2">
+        <div className="relative rounded-xl sm:rounded-2xl p-[1.5px] overflow-hidden group shadow-[0_0_20px_rgba(3,105,161,0.2)] mx-auto w-full max-w-[210px] sm:max-w-[250px]">
           {/* Base subtle thin border */}
-          <div className="pointer-events-none absolute inset-0 rounded-2xl border border-cyan-500/25 z-10" />
+          <div className="pointer-events-none absolute inset-0 rounded-xl sm:rounded-2xl border border-cyan-500/25 z-10" />
 
           {/* Circulating Glowing Spark that travels continuously around the rectangular perimeter */}
           <div
@@ -115,12 +115,12 @@ export const CleanPairingView: React.FC = () => {
             style={{
               background:
                 'conic-gradient(from 0deg, transparent 0deg, transparent 330deg, rgba(59,130,246,0.15) 340deg, rgba(6,182,212,0.6) 350deg, #38bdf8 355deg, #ffffff 358.5deg, #67e8f9 359.5deg, transparent 360deg)',
-              filter: 'drop-shadow(0 0 10px rgba(56, 189, 248, 1)) drop-shadow(0 0 4px #ffffff)',
+              filter: 'drop-shadow(0 0 8px rgba(56, 189, 248, 1)) drop-shadow(0 0 3px #ffffff)',
             }}
           />
 
           {/* Inner card with rectangular image wider so bot name is visible */}
-          <div className="relative z-20 w-full rounded-[14.5px] bg-[#03060c] overflow-hidden p-1 flex items-center justify-center">
+          <div className="relative z-20 w-full rounded-[10.5px] sm:rounded-[14.5px] bg-[#03060c] overflow-hidden p-1 flex items-center justify-center">
             <img
               src={botAvatar}
               loading="eager"
@@ -133,24 +133,24 @@ export const CleanPairingView: React.FC = () => {
                 }
               }}
               alt="Voltra Bot Banner"
-              className="w-full h-32 sm:h-36 object-contain rounded-xl bg-[#03060c]"
+              className="w-full h-24 sm:h-30 object-contain rounded-lg sm:rounded-xl bg-[#03060c]"
             />
           </div>
         </div>
 
         <div className="space-y-0.5">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+          <h1 className="text-base sm:text-xl font-bold tracking-tight text-white">
             WhatsApp Pairing
           </h1>
-          <p className="text-[11px] text-slate-400 max-w-xs mx-auto leading-relaxed">
+          <p className="text-[10px] sm:text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
             Select your preferred pairing mode to link your device.
           </p>
         </div>
       </div>
 
       {/* Seamless Form UI */}
-      <div className="space-y-3">
-        {/* Tonal Segmented Pill Selector (Compact) */}
+      <div className="space-y-2.5 sm:space-y-3">
+        {/* Tonal Segmented Pill Selector (Compact for mobile) */}
         <div className="flex p-0.5 rounded-full bg-white/[0.04]">
           <button
             type="button"
@@ -158,13 +158,13 @@ export const CleanPairingView: React.FC = () => {
               setPairingMethod('code');
               setFormError(null);
             }}
-            className={`flex-1 py-1.5 px-3 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            className={`flex-1 py-1 sm:py-1.5 px-2.5 sm:px-3 rounded-full text-[11px] sm:text-xs font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer ${
               pairingMethod === 'code'
                 ? 'bg-cyan-400 text-slate-950 shadow-sm shadow-cyan-400/20 font-bold'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            <Smartphone className="w-3.5 h-3.5" />
+            <Smartphone className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             <span>Pairing Code</span>
           </button>
           <button
@@ -173,13 +173,13 @@ export const CleanPairingView: React.FC = () => {
               setPairingMethod('qr');
               setFormError(null);
             }}
-            className={`flex-1 py-1.5 px-3 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            className={`flex-1 py-1 sm:py-1.5 px-2.5 sm:px-3 rounded-full text-[11px] sm:text-xs font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer ${
               pairingMethod === 'qr'
                 ? 'bg-amber-400 text-slate-950 shadow-sm shadow-amber-400/25 font-bold'
                 : 'text-amber-400/80 hover:text-amber-300'
             }`}
           >
-            <QrCode className="w-3.5 h-3.5" />
+            <QrCode className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             <span>QR Code</span>
           </button>
         </div>
@@ -189,18 +189,18 @@ export const CleanPairingView: React.FC = () => {
         {/* ======================================================== */}
         {pairingMethod === 'qr' && (
           <GlowingFormContainer>
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {/* 1. Container ABOVE the Generate Button */}
-              <div className="rounded-xl p-4 flex flex-col items-center justify-center min-h-[170px] text-center bg-white/[0.02] border border-amber-500/25 space-y-2">
-                <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-sm shadow-amber-500/10">
-                  <AlertTriangle className="w-4 h-4 stroke-[2]" />
+              <div className="rounded-lg sm:rounded-xl p-3 sm:p-3.5 flex flex-col items-center justify-center min-h-[135px] text-center bg-white/[0.02] border border-amber-500/25 space-y-1.5">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-sm shadow-amber-500/10">
+                  <AlertTriangle className="w-3.5 h-3.5 stroke-[2]" />
                 </div>
                 <div className="space-y-0.5">
-                  <h3 className="text-xs font-semibold text-amber-200">
+                  <h3 className="text-[11px] sm:text-xs font-semibold text-amber-200">
                     QR Code Generation Not Working
                   </h3>
-                  <p className="text-[11px] text-slate-400 max-w-xs leading-relaxed">
-                    QR linking is currently disabled and not working. Please switch to the 8-Digit Pairing Code to link your WhatsApp bot in seconds.
+                  <p className="text-[10px] sm:text-[11px] text-slate-400 max-w-xs leading-relaxed">
+                    QR linking is currently disabled. Please switch to the 8-Digit Pairing Code to link your WhatsApp bot in seconds.
                   </p>
                 </div>
                 <button
@@ -209,7 +209,7 @@ export const CleanPairingView: React.FC = () => {
                     setPairingMethod('code');
                     setFormError(null);
                   }}
-                  className="mt-0.5 py-1.5 px-3 rounded-full bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-[11px] font-bold transition-all shadow-md shadow-cyan-400/20 cursor-pointer"
+                  className="mt-0.5 py-1 px-2.5 rounded-full bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-[10px] sm:text-[11px] font-bold transition-all shadow-md shadow-cyan-400/20 cursor-pointer"
                 >
                   Use Pairing Code Instead
                 </button>
@@ -219,10 +219,10 @@ export const CleanPairingView: React.FC = () => {
               <button
                 type="button"
                 disabled={true}
-                className="w-full py-2.5 px-4 rounded-xl bg-amber-500/20 border-2 border-amber-500/50 text-amber-300 font-bold text-xs tracking-wide shadow-md shadow-amber-500/20 flex items-center justify-center gap-1.5 cursor-not-allowed select-none opacity-90 transition-all"
+                className="w-full py-2 sm:py-2.5 px-3 rounded-lg sm:rounded-xl bg-amber-500/20 border-2 border-amber-500/50 text-amber-300 font-bold text-[11px] sm:text-xs tracking-wide shadow-md shadow-amber-500/20 flex items-center justify-center gap-1.5 cursor-not-allowed select-none opacity-90 transition-all"
                 title="Generate QR code button is disabled"
               >
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <AlertTriangle className="w-3 h-3 text-amber-400 shrink-0" />
                 <span>Generate QR Code</span>
               </button>
             </div>
@@ -234,10 +234,10 @@ export const CleanPairingView: React.FC = () => {
         {/* ============================================================== */}
         {pairingMethod === 'code' && (
           <GlowingFormContainer>
-            <form onSubmit={handleSubmit} className="space-y-3">
+            <form onSubmit={handleSubmit} className="space-y-2.5">
               {/* 1. Phone Number Input */}
               <div className="space-y-1">
-                <label htmlFor="phone-input" className="block text-[11px] font-medium text-slate-300">
+                <label htmlFor="phone-input" className="block text-[10px] sm:text-[11px] font-medium text-slate-300">
                   Phone Number
                 </label>
                 <input
@@ -250,14 +250,14 @@ export const CleanPairingView: React.FC = () => {
                   }}
                   placeholder="263771234567 or 14155552671"
                   disabled={isProcessing}
-                  className="w-full px-3 py-2 rounded-xl bg-white/[0.04] text-white placeholder-slate-600 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-cyan-400/40 transition-all"
+                  className="w-full px-2.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-white/[0.04] text-white placeholder-slate-600 text-[11px] sm:text-xs font-mono focus:outline-none focus:ring-2 focus:ring-cyan-400/40 transition-all"
                 />
               </div>
 
               {/* Error Message */}
               {(formError || lastError) && (
-                <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-[11px] text-rose-300 flex items-start gap-2">
-                  <AlertCircle className="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5" />
+                <div className="p-2 rounded-lg sm:rounded-xl bg-rose-500/10 border border-rose-500/20 text-[10px] sm:text-[11px] text-rose-300 flex items-start gap-1.5">
+                  <AlertCircle className="w-3 h-3 text-rose-400 shrink-0 mt-0.5" />
                   <span className="leading-snug">{formError || lastError}</span>
                 </div>
               )}
@@ -266,16 +266,16 @@ export const CleanPairingView: React.FC = () => {
               <button
                 type="submit"
                 disabled={isProcessing}
-                className="w-full py-2.5 px-4 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs tracking-wide shadow-md shadow-cyan-400/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 active:scale-[0.99]"
+                className="w-full py-2 sm:py-2.5 px-3 rounded-lg sm:rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-[11px] sm:text-xs tracking-wide shadow-md shadow-cyan-400/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 active:scale-[0.99]"
               >
                 {isProcessing ? (
                   <>
-                    <RotateCw className="w-3.5 h-3.5 animate-spin" />
+                    <RotateCw className="w-3 h-3 animate-spin" />
                     <span>Requesting Code...</span>
                   </>
                 ) : (
                   <>
-                    <Smartphone className="w-3.5 h-3.5" />
+                    <Smartphone className="w-3 h-3" />
                     <span>{formattedCode ? 'Request New Code' : 'Generate Pairing Code'}</span>
                   </>
                 )}
@@ -284,25 +284,25 @@ export const CleanPairingView: React.FC = () => {
               {/* 3. Card BELOW the Generate Button (Displays 8-digit code or placeholder) */}
               <div
                 onClick={handleManualCopy}
-                className="p-3.5 rounded-xl bg-white/[0.03] space-y-1.5 text-center transition-all cursor-pointer hover:bg-white/[0.05]"
+                className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-white/[0.03] space-y-1 text-center transition-all cursor-pointer hover:bg-white/[0.05]"
                 title="Click to copy pairing code"
               >
-                <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-wider block">
+                <span className="text-[8px] sm:text-[9px] font-semibold text-slate-500 uppercase tracking-wider block">
                   8-Digit Pairing Code
                 </span>
 
                 {formattedCode ? (
-                  <div className="space-y-1 animate-in fade-in duration-200">
-                    <div className="font-mono text-2xl sm:text-3xl font-extrabold tracking-widest text-cyan-300 select-all py-0.5">
+                  <div className="space-y-0.5 animate-in fade-in duration-200">
+                    <div className="font-mono text-lg sm:text-2xl font-extrabold tracking-wider text-cyan-300 select-all py-0.5">
                       {formattedCode}
                     </div>
-                    <div className="text-[10px] text-emerald-400 font-medium flex items-center justify-center gap-1">
-                      <Check className="w-3 h-3 stroke-[3]" />
+                    <div className="text-[9px] sm:text-[10px] text-emerald-400 font-medium flex items-center justify-center gap-1">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
                       <span>Copied automatically (tap to copy)</span>
                     </div>
                   </div>
                 ) : (
-                  <div className="py-1 text-xs text-slate-500 font-mono tracking-wider">
+                  <div className="py-0.5 text-[11px] sm:text-xs text-slate-500 font-mono tracking-wider">
                     Code will appear here
                   </div>
                 )}

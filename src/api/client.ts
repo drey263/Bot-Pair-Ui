@@ -1,6 +1,6 @@
 /**
  * Voltra Mini - Official API Client Module
- * Communicates with the real WhatsApp Bot API at https://voltra-bot-su5n.onrender.com
+ * Communicates with the real WhatsApp Bot API at https://pro-bot-production-3c56.up.railway.app
  */
 
 import {
@@ -16,8 +16,9 @@ import {
   ApiLogEntry,
 } from './types';
 
-export const RENDER_BACKEND_URL = 'https://voltra-bot-su5n.onrender.com';
-export const DEFAULT_BASE_URL = 'https://voltra-bot-su5n.onrender.com'; // Hardcoded for Render deployment
+export const BACKEND_URL = 'https://pro-bot-production-3c56.up.railway.app';
+export const RENDER_BACKEND_URL = 'https://pro-bot-production-3c56.up.railway.app';
+export const DEFAULT_BASE_URL = 'https://pro-bot-production-3c56.up.railway.app';
 export const DEFAULT_API_PREFIX = '/api/v1';
 
 // Custom error class with rich HTTP diagnostic metadata

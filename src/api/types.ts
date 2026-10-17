@@ -1,6 +1,6 @@
 /**
  * Voltra Mini - API Types & Data Contracts
- * Defined strictly according to the backend specification at voltra-bot-su5n.onrender.com
+ * Defined strictly according to the backend specification at pro-bot-production-3c56.up.railway.app
  */
 
 export type PairingMethod = 'code' | 'qr';

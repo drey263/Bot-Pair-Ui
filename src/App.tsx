@@ -13,14 +13,13 @@ import { PollVotesPage } from './components/PollVotesPage';
 import { SplashScreen } from './components/SplashScreen';
 import { PageTransitionLoader } from './components/PageTransitionLoader';
 import { ToastContainer } from './components/Toast';
-import botAvatar from './assets/bot-avatar.png';
 
 const MainLayout: React.FC = () => {
   const { currentRoute } = useWorkflow();
 
   if (currentRoute === '/services/channel-reactions') {
     return (
-      <div className="flex-1 flex flex-col justify-start items-center p-3 sm:p-5 w-full">
+      <div className="flex-1 flex flex-col justify-start items-center px-2 py-2 sm:px-4 sm:py-5 w-full">
         <ChannelReactionsPage />
       </div>
     );
@@ -28,14 +27,14 @@ const MainLayout: React.FC = () => {
 
   if (currentRoute === '/services/poll-votes') {
     return (
-      <div className="flex-1 flex flex-col justify-start items-center p-3 sm:p-5 w-full">
+      <div className="flex-1 flex flex-col justify-start items-center px-2 py-2 sm:px-4 sm:py-5 w-full">
         <PollVotesPage />
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col justify-start items-center p-3 sm:p-5 w-full">
+    <div className="flex-1 flex flex-col justify-start items-center px-2 py-2 sm:px-4 sm:py-5 w-full">
       <CleanPairingView />
     </div>
   );
@@ -43,14 +42,14 @@ const MainLayout: React.FC = () => {
 
 const Footer: React.FC = () => {
   return (
-    <footer className="border-t-2 border-blue-500 shadow-[0_-4px_20px_rgba(59,130,246,0.35)] bg-[#020408] py-4 sm:py-5 text-xs text-slate-500 w-full mt-auto relative z-20">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+    <footer className="border-t-2 border-blue-500 shadow-[0_-4px_20px_rgba(59,130,246,0.35)] bg-[#020408] py-3 sm:py-4 text-xs text-slate-500 w-full mt-auto relative z-20">
+      <div className="max-w-5xl mx-auto px-3 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-slate-300 text-xs">VOLTRA MD</span>
+          <span className="font-semibold text-slate-300 text-[11px] sm:text-xs">VOLTRA MD</span>
           <span className="text-slate-700">·</span>
-          <span className="text-[11px]">WhatsApp Multi-Device Platform</span>
+          <span className="text-[10px] sm:text-[11px]">WhatsApp Multi-Device Platform</span>
         </div>
-        <div className="text-slate-600 text-[10px] font-mono">
+        <div className="text-slate-600 text-[9px] sm:text-[10px] font-mono">
           Services & Pairing Engine
         </div>
       </div>
