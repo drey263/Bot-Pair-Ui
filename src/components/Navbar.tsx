@@ -18,13 +18,13 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b-2 border-blue-500 bg-[#020408]/95 backdrop-blur-xl shadow-[0_4px_20px_rgba(59,130,246,0.4)]">
-      <div className="max-w-5xl mx-auto px-3 sm:px-6 h-13 sm:h-14 flex items-center justify-between gap-3">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 h-15 sm:h-16 flex items-center justify-between gap-4">
         {/* Left: Brand Wordmark */}
         <button
           onClick={() => navigate('/pairing')}
-          className="flex items-center gap-2 text-left group focus:outline-none rounded-lg shrink-0 whitespace-nowrap cursor-pointer border-none bg-transparent p-0"
+          className="flex items-center gap-2.5 text-left group focus:outline-none rounded-xl shrink-0 whitespace-nowrap cursor-pointer border-none bg-transparent p-0"
         >
-          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden p-0.5 bg-gradient-to-br from-cyan-400 to-blue-600 shadow-md shadow-cyan-400/20 group-hover:scale-105 transition-all">
+          <div className="w-8 h-8 rounded-full overflow-hidden p-0.5 bg-gradient-to-br from-cyan-400 to-blue-600 shadow-md shadow-cyan-400/20 group-hover:scale-105 transition-all">
             <img
               src={botAvatar}
               width="32"
@@ -42,7 +42,7 @@ export const Navbar: React.FC = () => {
               className="w-full h-full object-cover rounded-full bg-slate-900"
             />
           </div>
-          <span className="text-xs sm:text-sm font-bold tracking-tight text-white group-hover:text-cyan-300 transition-colors">
+          <span className="text-sm sm:text-base font-bold tracking-tight text-white group-hover:text-cyan-300 transition-colors">
             VOLTRA MD
           </span>
           <span className="hidden sm:inline-block text-slate-600 font-normal">/</span>
@@ -55,11 +55,11 @@ export const Navbar: React.FC = () => {
         <div className="flex items-center">
           <button
             onClick={() => setIsSidebarOpen((prev) => !prev)}
-            className="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 focus:outline-none transition-colors cursor-pointer border-none bg-transparent"
+            className="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 focus:outline-none transition-colors cursor-pointer border-none bg-transparent"
             aria-label="Open menu"
             title="Open navigation menu"
           >
-            <Menu className="w-5 h-5 stroke-[2]" />
+            <Menu className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2]" />
           </button>
         </div>
       </div>

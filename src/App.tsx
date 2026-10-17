@@ -19,7 +19,7 @@ const MainLayout: React.FC = () => {
 
   if (currentRoute === '/services/channel-reactions') {
     return (
-      <div className="flex-1 flex flex-col justify-start items-center px-2 py-2 sm:px-4 sm:py-5 w-full">
+      <div className="flex-1 flex flex-col justify-start items-center p-4 sm:p-6 w-full">
         <ChannelReactionsPage />
       </div>
     );
@@ -27,14 +27,14 @@ const MainLayout: React.FC = () => {
 
   if (currentRoute === '/services/poll-votes') {
     return (
-      <div className="flex-1 flex flex-col justify-start items-center px-2 py-2 sm:px-4 sm:py-5 w-full">
+      <div className="flex-1 flex flex-col justify-start items-center p-4 sm:p-6 w-full">
         <PollVotesPage />
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col justify-start items-center px-2 py-2 sm:px-4 sm:py-5 w-full">
+    <div className="flex-1 flex flex-col justify-start items-center p-4 sm:p-6 w-full">
       <CleanPairingView />
     </div>
   );
@@ -42,14 +42,14 @@ const MainLayout: React.FC = () => {
 
 const Footer: React.FC = () => {
   return (
-    <footer className="border-t-2 border-blue-500 shadow-[0_-4px_20px_rgba(59,130,246,0.35)] bg-[#020408] py-3 sm:py-4 text-xs text-slate-500 w-full mt-auto relative z-20">
-      <div className="max-w-5xl mx-auto px-3 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3">
+    <footer className="sticky bottom-0 z-40 w-full border-t-2 border-blue-500 shadow-[0_-4px_20px_rgba(59,130,246,0.35)] bg-[#020408]/95 backdrop-blur-xl py-3 sm:py-3.5 text-xs text-slate-400 mt-auto">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-slate-300 text-[11px] sm:text-xs">VOLTRA MD</span>
-          <span className="text-slate-700">·</span>
-          <span className="text-[10px] sm:text-[11px]">WhatsApp Multi-Device Platform</span>
+          <span className="font-semibold text-slate-200 text-xs sm:text-sm">VOLTRA MD</span>
+          <span className="text-slate-600">·</span>
+          <span className="text-[11px] sm:text-xs text-slate-400">WhatsApp Multi-Device</span>
         </div>
-        <div className="text-slate-600 text-[9px] sm:text-[10px] font-mono">
+        <div className="text-slate-500 text-[10px] sm:text-[11px] font-mono">
           Services & Pairing Engine
         </div>
       </div>
@@ -92,11 +92,11 @@ const AppContent: React.FC = () => {
       {/* App Shell Header (Fixed & Sticky with Blue Divider) */}
       <Navbar />
 
-      <main className="flex-1 flex flex-col relative z-10 w-full overflow-x-clip">
+      <main className="flex-1 flex flex-col relative z-10 w-full overflow-x-clip pb-4">
         <MainLayout />
       </main>
 
-      {/* Footer (Divided by glowing blue line) */}
+      {/* Footer (Sticky at the bottom like the header) */}
       <Footer />
 
       {/* Right-Side Drawer Sidebar */}
