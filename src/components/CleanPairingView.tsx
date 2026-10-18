@@ -6,11 +6,58 @@ import {
   AlertCircle,
   Check,
   AlertTriangle,
+  Zap,
+  ShieldCheck,
+  Download,
+  Eye,
+  Users,
+  Sparkles,
 } from 'lucide-react';
 import { useWorkflow } from '../context/WorkflowContext';
 import { PairingMethod } from '../api/types';
 import { GlowingFormContainer } from './GlowingFormContainer';
-import botAvatar from '../assets/bot-avatar.png';
+import { FeatureTable, FeatureItem } from './FeatureTable';
+
+const BOT_AVATAR_PATH = '/bot-avatar.png';
+
+const PAIRING_FEATURES = [
+  {
+    name: 'Fast & Low Latency',
+    icon: Zap,
+    description: 'Sub-second Baileys socket execution with asynchronous non-blocking command pipelines.',
+    status: 'Ultra Fast',
+  },
+  {
+    name: 'Reliable Multi-Session',
+    icon: ShieldCheck,
+    description: 'Isolated session memory with automated reconnect heartbeats and zero credential leakage.',
+    status: 'Persistent',
+  },
+  {
+    name: 'Easy 8-Digit Pairing',
+    icon: Smartphone,
+    description: 'Instant pairing code generation directly to WhatsApp linked devices without scanning QR.',
+    status: 'Instant OTP',
+  },
+  {
+    name: 'HD Media Downloader',
+    icon: Download,
+    description: 'Automated high-speed downloader for TikTok (no watermark), YouTube HD audio/video, and Reels.',
+    status: 'Multi-Source',
+  },
+  {
+    name: 'ViewOnce Revealer',
+    icon: Eye,
+    description: 'Automatically captures, unwraps, and archives ephemeral WhatsApp ViewOnce photos and audio.',
+    status: 'Anti-Delete',
+  },
+  {
+    name: 'Group Suite & Tools',
+    icon: Users,
+    description: 'Complete admin toolset including anti-link filters, tagall broadcast, sticker creator, and kick/promote.',
+    status: 'Automated',
+  },
+];
 
 export const CleanPairingView: React.FC = () => {
   const {
@@ -102,12 +149,12 @@ export const CleanPairingView: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto px-4 py-4 sm:py-6 space-y-4 sm:space-y-5 animate-in fade-in duration-200">
-      {/* Rectangular Bot Banner with Circulating Glowing Spark Border */}
+    <div className="w-full max-w-xl mx-auto px-4 py-4 sm:py-6 space-y-4 sm:space-y-5 animate-in fade-in duration-200">
+      {/* Rectangular Bot Banner (wider so bot name is visible) with Circulating Glowing Spark Border */}
       <div className="flex flex-col items-center text-center space-y-2.5">
-        <div className="relative rounded-2xl p-[1.5px] overflow-hidden group shadow-[0_0_24px_rgba(3,105,161,0.25)] mx-auto w-full max-w-[270px]">
+        <div className="relative rounded-2xl p-[1.5px] overflow-hidden group shadow-[0_0_28px_rgba(3,105,161,0.3)] mx-auto w-full max-w-[340px] sm:max-w-[380px]">
           {/* Base subtle thin border */}
-          <div className="pointer-events-none absolute inset-0 rounded-2xl border border-cyan-500/25 z-10" />
+          <div className="pointer-events-none absolute inset-0 rounded-2xl border border-cyan-500/30 z-10" />
 
           {/* Circulating Glowing Spark that travels continuously around the rectangular perimeter */}
           <div
@@ -119,21 +166,14 @@ export const CleanPairingView: React.FC = () => {
             }}
           />
 
-          {/* Inner card with rectangular image wider so bot name is visible */}
-          <div className="relative z-20 w-full rounded-[14.5px] bg-[#03060c] overflow-hidden p-1 flex items-center justify-center">
+          {/* Inner card with rectangular image loaded fast from local /pairing-bot-banner.png */}
+          <div className="relative z-20 w-full rounded-[14.5px] bg-[#03060c] overflow-hidden flex items-center justify-center aspect-[1024/500]">
             <img
-              src={botAvatar}
+              src="/pairing-bot-banner.png"
               loading="eager"
               decoding="sync"
-              style={{ imageRendering: '-webkit-optimize-contrast' }}
-              onError={(e) => {
-                const target = e.currentTarget;
-                if (target.src !== 'https://files.solnets.indevs.in/image/VSmg8file_0000000090dc821192432be3544dfe6f.png') {
-                  target.src = 'https://files.solnets.indevs.in/image/VSmg8file_0000000090dc821192432be3544dfe6f.png';
-                }
-              }}
               alt="Voltra Bot Banner"
-              className="w-full h-32 sm:h-36 object-contain rounded-xl bg-[#03060c]"
+              className="w-full h-full object-cover rounded-[14.5px]"
             />
           </div>
         </div>
@@ -149,7 +189,7 @@ export const CleanPairingView: React.FC = () => {
       </div>
 
       {/* Seamless Form UI */}
-      <div className="space-y-3.5 sm:space-y-4">
+      <div className="space-y-3.5 sm:space-y-4 max-w-md mx-auto w-full">
         {/* Tonal Segmented Pill Selector */}
         <div className="flex p-1 rounded-full bg-white/[0.04]">
           <button
@@ -311,6 +351,18 @@ export const CleanPairingView: React.FC = () => {
           </GlowingFormContainer>
         )}
       </div>
+
+      {/* Clean Underline a few px below the form */}
+      <div className="pt-2 pb-3 px-1 max-w-md mx-auto w-full">
+        <div className="h-[1.5px] w-full bg-gradient-to-r from-transparent via-cyan-400/80 to-transparent shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
+      </div>
+
+      {/* Clean & Perfect Feature Table (Fast, reliable, easy to pair, downloader, viewonce reveal, etc.) */}
+      <FeatureTable
+        title="Bot Features & Platform Capabilities"
+        icon={Sparkles}
+        features={PAIRING_FEATURES as FeatureItem[]}
+      />
     </div>
   );
 };

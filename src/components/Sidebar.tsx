@@ -1,7 +1,8 @@
 import React from 'react';
 import { Smartphone, Smile, Vote, X, Layers, ChevronRight } from 'lucide-react';
 import { useWorkflow, AppRoute } from '../context/WorkflowContext';
-import botAvatar from '../assets/bot-avatar.png';
+
+const BOT_AVATAR_PATH = '/bot-avatar.png';
 
 export const Sidebar: React.FC = () => {
   const {
@@ -40,18 +41,11 @@ export const Sidebar: React.FC = () => {
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full overflow-hidden p-0.5 bg-gradient-to-br from-cyan-400 to-blue-600 shadow-md shadow-cyan-400/20 shrink-0">
                 <img
-                  src={botAvatar}
+                  src="/bot-avatar.png"
                   width="36"
                   height="36"
                   loading="eager"
                   decoding="sync"
-                  style={{ imageRendering: '-webkit-optimize-contrast' }}
-                  onError={(e) => {
-                    const target = e.currentTarget;
-                    if (target.src !== 'https://files.solnets.indevs.in/image/VSmg8file_0000000090dc821192432be3544dfe6f.png') {
-                      target.src = 'https://files.solnets.indevs.in/image/VSmg8file_0000000090dc821192432be3544dfe6f.png';
-                    }
-                  }}
                   alt="Voltra Bot"
                   className="w-full h-full object-cover rounded-full bg-slate-900"
                 />

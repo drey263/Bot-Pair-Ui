@@ -1,8 +1,36 @@
 import React, { useState } from 'react';
-import { Vote, CheckCircle2, AlertCircle, RotateCw, Smile, Smartphone } from 'lucide-react';
+import { Vote, CheckCircle2, AlertCircle, RotateCw, Smile, Smartphone, Users, ShieldCheck } from 'lucide-react';
 import { useWorkflow } from '../context/WorkflowContext';
 import { PollVoteResponse } from '../api/types';
 import { GlowingFormContainer } from './GlowingFormContainer';
+import { FeatureTable, FeatureItem } from './FeatureTable';
+
+const POLL_VOTES_FEATURES: FeatureItem[] = [
+  {
+    name: 'Targeted Option Selection',
+    icon: Vote,
+    description: 'Cast instant automated votes for specific option keys (1, 2, 3, etc.) on WhatsApp channel polls.',
+    status: 'Precision Vote',
+  },
+  {
+    name: 'Multi-Session Swarm',
+    icon: Users,
+    description: 'Broadcasts vote commands simultaneously across all active linked bot instances.',
+    status: 'Concurrent',
+  },
+  {
+    name: 'Live Vote Verification',
+    icon: CheckCircle2,
+    description: 'Real-time API response verifies socket delivery and poll vote acceptance immediately.',
+    status: 'Verified',
+  },
+  {
+    name: 'Native Protocol Payloads',
+    icon: ShieldCheck,
+    description: 'Constructs authentic WhatsApp Web vote stanzas to ensure permanent, non-rollback votes.',
+    status: 'Undetectable',
+  },
+];
 
 export const PollVotesPage: React.FC = () => {
   const { sendPollVote, isProcessing, navigate } = useWorkflow();
@@ -170,6 +198,18 @@ export const PollVotesPage: React.FC = () => {
           )}
         </div>
       </GlowingFormContainer>
+
+      {/* Clean Underline a few px below the form */}
+      <div className="pt-2 pb-3 px-1 max-w-md mx-auto w-full">
+        <div className="h-[1.5px] w-full bg-gradient-to-r from-transparent via-cyan-400/80 to-transparent shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
+      </div>
+
+      {/* Feature Table with real poll votes features */}
+      <FeatureTable
+        title="Channel Poll Vote Capabilities"
+        icon={Vote}
+        features={POLL_VOTES_FEATURES}
+      />
     </div>
   );
 };

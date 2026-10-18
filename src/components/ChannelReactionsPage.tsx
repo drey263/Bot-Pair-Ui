@@ -1,11 +1,39 @@
 import React, { useState } from 'react';
-import { Smile, Send, CheckCircle2, AlertCircle, RotateCw, Vote, Smartphone, X } from 'lucide-react';
+import { Smile, Send, CheckCircle2, AlertCircle, RotateCw, Vote, Smartphone, X, Zap, ShieldCheck } from 'lucide-react';
 import { useWorkflow } from '../context/WorkflowContext';
 import { ChannelReactionResponse } from '../api/types';
 import { GlowingFormContainer } from './GlowingFormContainer';
+import { FeatureTable, FeatureItem } from './FeatureTable';
 
 // 12 user-selected emojis organized symmetrically in 3 columns (4 rows of 3, no 4th column)
 const POPULAR_EMOJIS = ['💯', '😂', '❤️', '👍', '🙏', '🌈', '🎉', '📌', '🚩', '🎯', '👀', '🤩'];
+
+const CHANNEL_REACTIONS_FEATURES: FeatureItem[] = [
+  {
+    name: 'Instant Broadcast',
+    icon: Zap,
+    description: 'Delivers selected reactions directly to WhatsApp channel announcements in under 2 seconds.',
+    status: 'Real-Time',
+  },
+  {
+    name: 'Multi-Emoji Combos',
+    icon: Smile,
+    description: 'Select single or up to 5 concurrent emojis from official WhatsApp reactions plus custom emojis.',
+    status: 'Up to 5 Emojis',
+  },
+  {
+    name: 'Anti-Rate-Limit Guard',
+    icon: ShieldCheck,
+    description: 'Automated socket pacing and jitter protection preserves session longevity and avoids spam limits.',
+    status: 'Safe Delivery',
+  },
+  {
+    name: 'Universal Channel Links',
+    icon: Send,
+    description: 'Resolves all official WhatsApp channel permalinks (whatsapp.com/channel/...) with zero manual token setup.',
+    status: 'Full Support',
+  },
+];
 
 export const ChannelReactionsPage: React.FC = () => {
   const { sendChannelReaction, isProcessing, navigate } = useWorkflow();
@@ -250,6 +278,18 @@ export const ChannelReactionsPage: React.FC = () => {
           )}
         </div>
       </GlowingFormContainer>
+
+      {/* Clean Underline a few px below the form */}
+      <div className="pt-2 pb-3 px-1 max-w-md mx-auto w-full">
+        <div className="h-[1.5px] w-full bg-gradient-to-r from-transparent via-cyan-400/80 to-transparent shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
+      </div>
+
+      {/* Feature Table with real channel reactions features */}
+      <FeatureTable
+        title="Channel Reaction Capabilities"
+        icon={Smile}
+        features={CHANNEL_REACTIONS_FEATURES}
+      />
     </div>
   );
 };

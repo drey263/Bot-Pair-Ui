@@ -1,5 +1,6 @@
 import React from 'react';
-import botAvatar from '../assets/bot-avatar.png';
+
+const BOT_AVATAR_PATH = '/bot-avatar.png';
 
 interface PageTransitionLoaderProps {
   message?: string;
@@ -70,17 +71,11 @@ export const PageTransitionLoader: React.FC<PageTransitionLoaderProps> = ({
         {/* Center Bot Image with clean refined border */}
         <div className="relative z-10 w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden p-1 bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 shadow-xl shadow-cyan-500/25 ring-2 ring-cyan-400/20">
           <img
-            src={botAvatar}
+            src="/bot-avatar.png"
             width="112"
             height="112"
             loading="eager"
             decoding="sync"
-            onError={(e) => {
-              const target = e.currentTarget;
-              if (target.src !== 'https://files.solnets.indevs.in/image/VSmg8file_0000000090dc821192432be3544dfe6f.png') {
-                target.src = 'https://files.solnets.indevs.in/image/VSmg8file_0000000090dc821192432be3544dfe6f.png';
-              }
-            }}
             alt="Voltra Bot"
             className="w-full h-full object-cover rounded-full bg-slate-900"
           />

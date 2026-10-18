@@ -1,7 +1,8 @@
 import React from 'react';
 import { Menu } from 'lucide-react';
 import { useWorkflow } from '../context/WorkflowContext';
-import botAvatar from '../assets/bot-avatar.png';
+
+const BOT_AVATAR_PATH = '/bot-avatar.png';
 
 export const Navbar: React.FC = () => {
   const {
@@ -26,18 +27,11 @@ export const Navbar: React.FC = () => {
         >
           <div className="w-8 h-8 rounded-full overflow-hidden p-0.5 bg-gradient-to-br from-cyan-400 to-blue-600 shadow-md shadow-cyan-400/20 group-hover:scale-105 transition-all">
             <img
-              src={botAvatar}
+              src="/bot-avatar.png"
               width="32"
               height="32"
               loading="eager"
               decoding="sync"
-              style={{ imageRendering: '-webkit-optimize-contrast' }}
-              onError={(e) => {
-                const target = e.currentTarget;
-                if (target.src !== 'https://files.solnets.indevs.in/image/VSmg8file_0000000090dc821192432be3544dfe6f.png') {
-                  target.src = 'https://files.solnets.indevs.in/image/VSmg8file_0000000090dc821192432be3544dfe6f.png';
-                }
-              }}
               alt="Voltra Bot"
               className="w-full h-full object-cover rounded-full bg-slate-900"
             />

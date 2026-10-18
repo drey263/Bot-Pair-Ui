@@ -42,15 +42,17 @@ const MainLayout: React.FC = () => {
 
 const Footer: React.FC = () => {
   return (
-    <footer className="sticky bottom-0 z-40 w-full border-t-2 border-blue-500 shadow-[0_-4px_20px_rgba(59,130,246,0.35)] bg-[#020408]/95 backdrop-blur-xl py-3 sm:py-3.5 text-xs text-slate-400 mt-auto">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-slate-200 text-xs sm:text-sm">VOLTRA MD</span>
+    <footer className="sticky bottom-0 z-40 w-full border-t-2 border-blue-500 shadow-[0_-4px_16px_rgba(59,130,246,0.25)] bg-[#020408]/95 backdrop-blur-xl py-2.5 sm:py-3 text-xs text-slate-400 mt-auto">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col items-center justify-center text-center space-y-1">
+        <div className="flex items-center justify-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+          <span className="font-bold text-slate-200 text-xs sm:text-sm tracking-tight">VOLTRA-MD</span>
           <span className="text-slate-600">·</span>
           <span className="text-[11px] sm:text-xs text-slate-400">WhatsApp Multi-Device</span>
         </div>
-        <div className="text-slate-500 text-[10px] sm:text-[11px] font-mono">
-          Services & Pairing Engine
+
+        <div className="text-[11px] text-slate-500 font-mono tracking-tight">
+          © 2026 All Rights Reserved
         </div>
       </div>
     </footer>
@@ -92,7 +94,7 @@ const AppContent: React.FC = () => {
       {/* App Shell Header (Fixed & Sticky with Blue Divider) */}
       <Navbar />
 
-      <main className="flex-1 flex flex-col relative z-10 w-full overflow-x-clip pb-4">
+      <main className="flex-1 flex flex-col relative z-10 w-full overflow-x-clip pb-8 sm:pb-10">
         <MainLayout />
       </main>
 
