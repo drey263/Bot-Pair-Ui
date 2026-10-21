@@ -68,8 +68,8 @@ export const PageTransitionLoader: React.FC<PageTransitionLoaderProps> = ({
           </g>
         </svg>
 
-        {/* Center Bot Image with clean refined border */}
-        <div className="relative z-10 w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden p-1 bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 shadow-xl shadow-cyan-500/25 ring-2 ring-cyan-400/20">
+        {/* Center Bot Image with physical machined bezel and glass lens */}
+        <div className="relative z-10 w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden p-1.5 bg-gradient-to-b from-[#2a3444] via-[#151c27] to-[#0a0d14] shadow-[0_12px_28px_rgba(0,0,0,0.95),inset_0_1px_1px_rgba(255,255,255,0.4)] border border-cyan-400/30">
           <img
             src="/bot-avatar.png"
             width="112"
@@ -77,24 +77,29 @@ export const PageTransitionLoader: React.FC<PageTransitionLoaderProps> = ({
             loading="eager"
             decoding="sync"
             alt="Voltra Bot"
-            className="w-full h-full object-cover rounded-full bg-slate-900"
+            className="w-full h-full object-cover rounded-full bg-slate-900 border border-black"
           />
+          {/* Glass Lens Glare */}
+          <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-transparent" />
         </div>
       </div>
 
-      {/* Sleek message and minimal loading bar */}
-      <div className="mt-5 flex flex-col items-center space-y-2 z-10">
-        <span className="text-xs sm:text-sm font-semibold tracking-widest text-cyan-300 uppercase">
-          {message}
-        </span>
-
-        {/* Minimal clean loading bar */}
-        <div className="w-28 h-1 bg-white/5 rounded-full overflow-hidden relative">
-          <div className="absolute inset-y-0 w-10 bg-gradient-to-r from-transparent via-cyan-400 to-transparent rounded-full animate-[spinSpark_1.6s_ease-in-out_infinite]" />
+      {/* Sleek message and skeuomorphic loading bar */}
+      <div className="mt-5 flex flex-col items-center space-y-2.5 z-10">
+        <div className="flex items-center gap-1.5">
+          <span className="skeuo-diode-cyan" />
+          <span className="text-xs sm:text-sm font-bold tracking-widest text-cyan-300 uppercase font-mono drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">
+            {message}
+          </span>
         </div>
 
-        <span className="text-[10px] text-slate-500 tracking-widest font-mono">
-          VOLTRA MD
+        {/* Skeuomorphic Stamped Inset Loading Bar */}
+        <div className="w-32 h-2 skeuo-inset-bay rounded-full overflow-hidden relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.9)]">
+          <div className="absolute inset-y-0 w-12 bg-gradient-to-r from-transparent via-cyan-400 to-transparent rounded-full shadow-[0_0_8px_#22d3ee] animate-[spinSpark_1.6s_ease-in-out_infinite]" />
+        </div>
+
+        <span className="text-[10px] text-slate-500 tracking-widest font-mono uppercase">
+          VOLTRA MD ENGINE
         </span>
       </div>
     </div>

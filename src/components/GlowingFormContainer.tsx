@@ -6,20 +6,22 @@ interface GlowingFormContainerProps {
 }
 
 /**
- * GlowingFormContainer
- * Styled container with a thin glowing spark circulating around the border.
- * Sized with comfortable padding for forms.
+ * GlowingFormContainer - Skeuomorphic Heavy-Duty Console Chassis
+ * Real-object physical console faceplate with machined bevels, corner fastener screws,
+ * circulating spark orbit, and a recessed instrument deck.
  */
 export const GlowingFormContainer: React.FC<GlowingFormContainerProps> = ({
   children,
   className = '',
 }) => {
   return (
-    <div className={`relative rounded-2xl sm:rounded-3xl p-[1.5px] overflow-hidden group shadow-[0_0_24px_rgba(3,105,161,0.15)] ${className}`}>
-      {/* 1. Base subtle styled thin border */}
-      <div className="pointer-events-none absolute inset-0 rounded-2xl sm:rounded-3xl border border-cyan-500/20 z-10" />
+    <div
+      className={`relative rounded-2xl sm:rounded-3xl p-[2px] overflow-hidden group shadow-[0_16px_36px_rgba(0,0,0,0.85),0_4px_8px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.2)] bg-gradient-to-b from-[#1b2330] via-[#121721] to-[#090c12] ${className}`}
+    >
+      {/* 1. Base subtle machined metal edge border */}
+      <div className="pointer-events-none absolute inset-0 rounded-2xl sm:rounded-3xl border border-cyan-500/25 z-10" />
 
-      {/* 2. Circulating Glowing Spark that travels continuously around the form perimeter */}
+      {/* 2. Circulating Glowing Spark that travels continuously around the physical chassis perimeter */}
       <div
         className="pointer-events-none absolute -inset-[200%] animate-spin-spark z-0 opacity-100"
         style={{
@@ -29,8 +31,22 @@ export const GlowingFormContainer: React.FC<GlowingFormContainerProps> = ({
         }}
       />
 
-      {/* 3. Inner Form Card */}
-      <div className="relative z-20 w-full rounded-[14.5px] sm:rounded-[22.5px] bg-[#03060c] p-4 sm:p-6 shadow-xl shadow-cyan-950/20">
+      {/* 3. Inner Machined Instrument Deck with Corner Screws and Recessed Groove */}
+      <div className="relative z-20 w-full rounded-[14px] sm:rounded-[22px] bg-gradient-to-b from-[#0c1017] via-[#080b11] to-[#04060a] p-4 sm:p-5 shadow-[inset_0_2px_8px_rgba(0,0,0,0.9),0_1px_0_rgba(255,255,255,0.06)] border border-white/[0.04]">
+        {/* Subtle physical corner screws */}
+        <div className="pointer-events-none absolute top-2.5 left-2.5 z-20 hidden sm:block">
+          <span className="skeuo-screw" />
+        </div>
+        <div className="pointer-events-none absolute top-2.5 right-2.5 z-20 hidden sm:block">
+          <span className="skeuo-screw" />
+        </div>
+        <div className="pointer-events-none absolute bottom-2.5 left-2.5 z-20 hidden sm:block">
+          <span className="skeuo-screw" />
+        </div>
+        <div className="pointer-events-none absolute bottom-2.5 right-2.5 z-20 hidden sm:block">
+          <span className="skeuo-screw" />
+        </div>
+
         {children}
       </div>
     </div>

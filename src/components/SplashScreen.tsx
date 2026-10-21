@@ -88,8 +88,8 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
           </g>
         </svg>
 
-        {/* Center Bot Image with clean refined border */}
-        <div className="relative z-10 w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden p-1 bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 shadow-xl shadow-cyan-500/25 ring-2 ring-cyan-400/20">
+        {/* Center Bot Image with physical machined bezel and glass lens */}
+        <div className="relative z-10 w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden p-1.5 bg-gradient-to-b from-[#2a3444] via-[#151c27] to-[#0a0d14] shadow-[0_12px_28px_rgba(0,0,0,0.95),inset_0_1px_1px_rgba(255,255,255,0.4)] border border-cyan-400/30">
           <img
             src="/bot-avatar.png"
             width="128"
@@ -97,25 +97,30 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
             loading="eager"
             decoding="sync"
             alt="Voltra Bot"
-            className="w-full h-full object-cover rounded-full bg-slate-900"
+            className="w-full h-full object-cover rounded-full bg-slate-900 border border-black"
           />
+          {/* Glass Lens Glare */}
+          <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-transparent" />
         </div>
       </div>
 
-      {/* Sleek typography & progress indicator */}
+      {/* Sleek typography & skeuomorphic progress indicator */}
       <div className="mt-6 flex flex-col items-center text-center space-y-3 z-10">
-        <span className="text-sm sm:text-base font-bold tracking-[0.25em] text-white">
+        <span className="text-sm sm:text-base font-extrabold tracking-[0.25em] text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
           VOLTRA MD
         </span>
 
-        {/* Minimal clean loading bar */}
-        <div className="w-32 h-1 bg-white/5 rounded-full overflow-hidden relative">
-          <div className="absolute inset-y-0 w-12 bg-gradient-to-r from-transparent via-cyan-400 to-transparent rounded-full animate-[spinSpark_1.6s_ease-in-out_infinite]" />
+        {/* Skeuomorphic Stamped Inset Loading Bar */}
+        <div className="w-36 h-2 skeuo-inset-bay rounded-full overflow-hidden relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.95)]">
+          <div className="absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-cyan-400 to-transparent rounded-full shadow-[0_0_8px_#22d3ee] animate-[spinSpark_1.6s_ease-in-out_infinite]" />
         </div>
 
-        <p className="text-[10px] text-cyan-400/70 font-mono tracking-widest uppercase">
-          Initializing Services
-        </p>
+        <div className="flex items-center gap-1.5 pt-0.5">
+          <span className="skeuo-diode-cyan" />
+          <span className="text-[10px] font-mono text-cyan-400/80 tracking-widest uppercase">
+            CALIBRATING HARDWARE ENGINE
+          </span>
+        </div>
       </div>
     </div>
   );

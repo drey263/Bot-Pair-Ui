@@ -96,3 +96,197 @@
   will-change: transform;
 }
 
+/* ==========================================================================
+   SKEUOMORPHIC PHYSICAL OBJECT DESIGN SYSTEM
+   Real-object tactile surfaces, machined bezels, extruded buttons, inset wells
+   ========================================================================== */
+
+/* Realistic Metallic Fastener Screw */
+.skeuo-screw {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #94a3b8 0%, #475569 50%, #1e293b 100%);
+  box-shadow: 
+    0 1px 1px rgba(0, 0, 0, 0.8),
+    inset 0 1px 1px rgba(255, 255, 255, 0.6),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.8);
+  position: relative;
+  display: inline-block;
+  opacity: 0.75;
+}
+.skeuo-screw::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 1px;
+  background: #090d14;
+  transform: translate(-50%, -50%) rotate(42deg);
+  box-shadow: 0 0.5px 0.5px rgba(255, 255, 255, 0.25);
+}
+
+/* Recessed Inset Bay / Stamped Well (for inputs, tracks, wells) */
+.skeuo-inset-bay {
+  background: linear-gradient(180deg, #05070c 0%, #080b11 100%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-top-color: rgba(0, 0, 0, 0.9);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    inset 0 3px 6px rgba(0, 0, 0, 0.85),
+    inset 0 1px 2px rgba(0, 0, 0, 0.95),
+    0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Tactile 3D Extruded Primary Button (Mechanical travel) */
+.skeuo-btn-primary {
+  background: linear-gradient(180deg, #38bdf8 0%, #06b6d4 40%, #0284c7 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.6);
+  border-left: 1px solid rgba(255, 255, 255, 0.25);
+  border-right: 1px solid rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.6);
+  box-shadow: 
+    0 4px 0 #075985,
+    0 8px 16px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  transition: all 0.08s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+.skeuo-btn-primary:hover:not(:disabled) {
+  filter: brightness(1.06);
+  box-shadow: 
+    0 4px 0 #075985,
+    0 10px 20px rgba(6, 182, 212, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+.skeuo-btn-primary:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 
+    0 1px 0 #075985,
+    0 2px 4px rgba(0, 0, 0, 0.7),
+    inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Tactile 3D Secondary Button / Rocker Key */
+.skeuo-btn-secondary {
+  background: linear-gradient(180deg, #222a36 0%, #151a23 60%, #0e1218 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.8);
+  box-shadow: 
+    0 3px 0 #07090d,
+    0 6px 12px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transition: all 0.08s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+.skeuo-btn-secondary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #2a3442 0%, #1a202c 60%, #121720 100%);
+  color: #ffffff;
+}
+.skeuo-btn-secondary:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 
+    0 1px 0 #07090d,
+    0 2px 4px rgba(0, 0, 0, 0.6),
+    inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Tactile Mechanical Keycap (Emoji pad) */
+.skeuo-keycap {
+  background: linear-gradient(180deg, #1e2633 0%, #131922 70%, #0b0f16 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  border-right: 1px solid rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.9);
+  box-shadow: 
+    0 3px 0 #06090e,
+    0 5px 8px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: all 0.06s ease;
+  user-select: none;
+}
+.skeuo-keycap:hover {
+  background: linear-gradient(180deg, #283344 0%, #18202b 70%, #0e131b 100%);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 0 #06090e,
+    0 6px 10px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+.skeuo-keycap:active {
+  transform: translateY(2px);
+  box-shadow: 
+    0 1px 0 #06090e,
+    0 1px 3px rgba(0, 0, 0, 0.6),
+    inset 0 2px 3px rgba(0, 0, 0, 0.4);
+}
+.skeuo-keycap-selected {
+  background: linear-gradient(180deg, #38bdf8 0%, #06b6d4 50%, #0284c7 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.65);
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
+  border-right: 1px solid rgba(0, 0, 0, 0.35);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.7);
+  box-shadow: 
+    0 2px 0 #075985,
+    0 0 16px rgba(6, 182, 212, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transform: translateY(1px);
+}
+
+/* Authentic Backlit LCD / VFD Instrument Display */
+.skeuo-lcd-display {
+  background: radial-gradient(circle at 50% 20%, #081a24 0%, #03080e 70%, #010408 100%);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+  border-top-color: rgba(0, 0, 0, 0.9);
+  border-bottom-color: rgba(6, 182, 212, 0.4);
+  box-shadow: 
+    inset 0 4px 10px rgba(0, 0, 0, 0.95),
+    inset 0 0 20px rgba(6, 182, 212, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.08);
+  position: relative;
+}
+.skeuo-lcd-display::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 100%);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Physical Glass Dome LED Diode */
+.skeuo-diode-green {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #86efac 0%, #22c55e 50%, #15803d 100%);
+  box-shadow: 
+    0 0 6px #22c55e,
+    0 0 12px rgba(34, 197, 94, 0.6),
+    inset 0 1px 1px rgba(255, 255, 255, 0.8),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.6);
+  border: 1px solid #14532d;
+  display: inline-block;
+}
+
+.skeuo-diode-cyan {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #a5f3fc 0%, #06b6d4 50%, #0e7490 100%);
+  box-shadow: 
+    0 0 6px #06b6d4,
+    0 0 12px rgba(6, 182, 212, 0.6),
+    inset 0 1px 1px rgba(255, 255, 255, 0.8),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.6);
+  border: 1px solid #155e75;
+  display: inline-block;
+}
+
+

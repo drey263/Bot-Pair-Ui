@@ -110,31 +110,30 @@ export const ChannelReactionsPage: React.FC = () => {
 
   return (
     <div className="w-full max-w-md mx-auto px-4 py-4 sm:py-6 space-y-4 sm:space-y-5 animate-in fade-in duration-200">
-      {/* Title Header */}
+      {/* Title Header with Diode Indicator */}
       <div className="text-center space-y-1.5">
-        <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-cyan-400/10 border border-cyan-400/20 text-[10px] font-semibold text-cyan-300 tracking-wider">
-          <Smile className="w-3.5 h-3.5 text-cyan-400" />
-          <span>Voltra Service</span>
+        <div className="flex items-center justify-center gap-1.5">
+          <span className="skeuo-diode-cyan" />
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+            Channel Reactions
+          </h1>
         </div>
-        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
-          Channel Reactions
-        </h1>
         <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
           Broadcast emoji reactions to WhatsApp channel posts across active sessions.
         </p>
       </div>
 
-      {/* Styled Form with Circulating Glowing Spark Border */}
+      {/* Styled Form with Skeuomorphic Console Deck */}
       <GlowingFormContainer>
         <div className="space-y-3.5 sm:space-y-4">
           <form onSubmit={handleSubmit} className="space-y-3.5">
-            {/* Channel Post URL */}
+            {/* Channel Post URL Bay */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label htmlFor="ch-url" className="block text-xs font-medium text-slate-300">
+                <label htmlFor="ch-url" className="block text-xs font-semibold text-slate-300 tracking-wide uppercase text-[10px]">
                   Channel Post URL
                 </label>
-                <span className="text-[11px] text-slate-500">/channel/...</span>
+                <span className="text-[10px] text-slate-500 font-mono">/channel/...</span>
               </div>
               <input
                 id="ch-url"
@@ -146,27 +145,27 @@ export const ChannelReactionsPage: React.FC = () => {
                 }}
                 placeholder="https://whatsapp.com/channel/..."
                 disabled={isProcessing}
-                className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-white/[0.04] text-white placeholder-slate-600 text-xs sm:text-sm font-mono focus:outline-none focus:ring-2 focus:ring-cyan-400/40 transition-all"
+                className="skeuo-inset-bay w-full px-4 py-2.5 sm:py-3 rounded-xl text-white placeholder-slate-600 text-xs sm:text-sm font-mono focus:outline-none focus:border-cyan-400/80 focus:shadow-[inset_0_3px_6px_rgba(0,0,0,0.95),0_0_14px_rgba(6,182,212,0.4)] transition-all"
               />
             </div>
 
-            {/* Emoji Selection (3 columns) */}
+            {/* Emoji Selection Keypad (3 columns of mechanical keycaps) */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-medium text-slate-300">
+                <label className="block text-xs font-semibold text-slate-300 tracking-wide uppercase text-[10px]">
                   Select Emojis
                 </label>
-                <span className="text-[11px] font-mono text-cyan-400">
+                <span className="text-[10px] font-mono text-cyan-400 font-bold">
                   {selectedEmojis.length}/5 selected
                 </span>
               </div>
 
-              {/* Selected Emojis Bar */}
-              <div className="flex items-center gap-1.5 p-2 rounded-xl bg-white/[0.03] min-h-[38px] flex-wrap">
+              {/* Selected Emojis Stamped Bay */}
+              <div className="skeuo-inset-bay flex items-center gap-1.5 p-2 rounded-xl min-h-[38px] flex-wrap">
                 {selectedEmojis.map((em, idx) => (
                   <span
                     key={idx}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-cyan-400/15 border border-cyan-400/30 text-xs text-white"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gradient-to-b from-cyan-400/25 to-cyan-500/10 border border-cyan-400/40 text-xs text-white shadow-[0_1px_3px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.2)]"
                   >
                     <span className="text-sm">{em}</span>
                     {selectedEmojis.length > 1 && (
@@ -182,8 +181,8 @@ export const ChannelReactionsPage: React.FC = () => {
                 ))}
               </div>
 
-              {/* 3-Column Emoji Grid */}
-              <div className="grid grid-cols-3 gap-1.5 pt-0.5">
+              {/* 3-Column Tactile Mechanical Keycap Grid */}
+              <div className="grid grid-cols-3 gap-2 pt-1">
                 {POPULAR_EMOJIS.map((em) => {
                   const isSelected = selectedEmojis.includes(em);
                   return (
@@ -191,10 +190,10 @@ export const ChannelReactionsPage: React.FC = () => {
                       key={em}
                       type="button"
                       onClick={() => toggleEmoji(em)}
-                      className={`h-8 sm:h-9 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer ${
+                      className={`h-9 sm:h-10 rounded-xl text-base flex items-center justify-center transition-all cursor-pointer ${
                         isSelected
-                          ? 'bg-cyan-400 text-slate-950 shadow-sm shadow-cyan-400/30 scale-[1.02] font-bold'
-                          : 'bg-white/[0.04] text-slate-300 hover:bg-white/[0.08] hover:scale-[1.02]'
+                          ? 'skeuo-keycap-selected font-bold'
+                          : 'skeuo-keycap text-slate-200'
                       }`}
                     >
                       {em}
@@ -203,32 +202,32 @@ export const ChannelReactionsPage: React.FC = () => {
                 })}
               </div>
 
-              {/* Custom Emoji text input */}
-              <div className="pt-1">
+              {/* Custom Emoji text input bay */}
+              <div className="pt-1.5">
                 <input
                   type="text"
                   value={customEmoji}
                   onChange={(e) => setCustomEmoji(e.target.value)}
                   onKeyDown={handleAddCustomEmoji}
                   placeholder="Or type custom emoji & press Enter"
-                  className="w-full px-4 py-2 rounded-xl bg-white/[0.04] text-white placeholder-slate-600 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400/40 transition-all"
+                  className="skeuo-inset-bay w-full px-4 py-2 rounded-xl text-white placeholder-slate-600 text-xs sm:text-sm focus:outline-none focus:border-cyan-400/80 focus:shadow-[inset_0_3px_6px_rgba(0,0,0,0.95),0_0_12px_rgba(6,182,212,0.35)] transition-all"
                 />
               </div>
             </div>
 
             {/* Form Error */}
             {formError && (
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300 flex items-start gap-2">
+              <div className="p-2.5 sm:p-3 rounded-xl bg-gradient-to-b from-rose-950/40 to-rose-900/20 border border-rose-500/30 text-xs text-rose-300 flex items-start gap-2 shadow-[inset_0_1px_3px_rgba(0,0,0,0.6)]">
                 <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
                 <span className="leading-snug">{formError}</span>
               </div>
             )}
 
-            {/* Submit Button */}
+            {/* Tactile 3D Submit Button */}
             <button
               type="submit"
               disabled={isProcessing}
-              className="w-full py-2.5 sm:py-3 px-4 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs sm:text-sm tracking-wide shadow-md shadow-cyan-400/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.99]"
+              className="skeuo-btn-primary w-full py-2.5 sm:py-3 px-4 rounded-xl text-slate-950 font-bold text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {isProcessing ? (
                 <>
@@ -243,12 +242,12 @@ export const ChannelReactionsPage: React.FC = () => {
               )}
             </button>
 
-            {/* Quick Redirect Buttons */}
+            {/* Tactile 3D Quick Redirect Rocker Buttons */}
             <div className="pt-1 grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => navigate('/services/poll-votes')}
-                className="py-2 px-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                className="skeuo-btn-secondary py-2 px-3 rounded-xl text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               >
                 <Vote className="w-3.5 h-3.5 text-cyan-400" />
                 <span>Try Poll Votes</span>
@@ -256,7 +255,7 @@ export const ChannelReactionsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigate('/pairing')}
-                className="py-2 px-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                className="skeuo-btn-secondary py-2 px-3 rounded-xl text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               >
                 <Smartphone className="w-3.5 h-3.5 text-cyan-400" />
                 <span>Go to Pairing</span>
@@ -264,14 +263,15 @@ export const ChannelReactionsPage: React.FC = () => {
             </div>
           </form>
 
-          {/* Result Feedback */}
+          {/* Authentic LCD Console Result Feedback */}
           {result && (
-            <div className="p-3 sm:p-3.5 rounded-xl bg-white/[0.03] space-y-1 animate-in fade-in duration-200">
+            <div className="skeuo-lcd-display rounded-xl p-3 sm:p-3.5 space-y-1 animate-in fade-in duration-200">
               <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-xs">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Reaction Broadcasted</span>
+                <span className="skeuo-diode-green" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="font-mono text-[11px] tracking-wide">Reaction Broadcasted</span>
               </div>
-              <p className="text-xs text-slate-300 font-mono leading-relaxed">
+              <p className="text-xs text-cyan-300/90 font-mono leading-relaxed pl-5">
                 {result.message}
               </p>
             </div>
@@ -279,9 +279,11 @@ export const ChannelReactionsPage: React.FC = () => {
         </div>
       </GlowingFormContainer>
 
-      {/* Clean Underline a few px below the form */}
+      {/* Skeuomorphic Stamped Channel Groove with Glowing Fiber-Optic Core */}
       <div className="pt-2 pb-3 px-1 max-w-md mx-auto w-full">
-        <div className="h-[1.5px] w-full bg-gradient-to-r from-transparent via-cyan-400/80 to-transparent shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
+        <div className="relative h-[4px] w-full rounded-full bg-[#05080e] shadow-[inset_0_2px_4px_rgba(0,0,0,0.95),0_1px_0_rgba(255,255,255,0.08)] overflow-hidden flex items-center justify-center">
+          <div className="h-[1.5px] w-3/4 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_8px_rgba(34,211,238,0.9)]" />
+        </div>
       </div>
 
       {/* Feature Table with real channel reactions features */}

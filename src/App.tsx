@@ -42,16 +42,20 @@ const MainLayout: React.FC = () => {
 
 const Footer: React.FC = () => {
   return (
-    <footer className="sticky bottom-0 z-40 w-full border-t-2 border-blue-500 shadow-[0_-4px_16px_rgba(59,130,246,0.25)] bg-[#020408]/95 backdrop-blur-xl py-2.5 sm:py-3 text-xs text-slate-400 mt-auto">
+    <footer className="sticky bottom-0 z-40 w-full border-t-2 border-blue-500 shadow-[0_-4px_20px_rgba(59,130,246,0.3),0_-1px_0_rgba(255,255,255,0.15)] bg-gradient-to-b from-[#080b12] via-[#0d121b] to-[#121822] backdrop-blur-xl py-2.5 sm:py-3 text-xs text-slate-400 mt-auto">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col items-center justify-center text-center space-y-1">
         <div className="flex items-center justify-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
-          <span className="font-bold text-slate-200 text-xs sm:text-sm tracking-tight">VOLTRA-MD</span>
+          <span className="skeuo-diode-green" />
+          <span className="font-extrabold text-slate-200 text-xs sm:text-sm tracking-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+            VOLTRA-MD
+          </span>
           <span className="text-slate-600">·</span>
-          <span className="text-[11px] sm:text-xs text-slate-400">WhatsApp Multi-Device</span>
+          <span className="text-[11px] sm:text-xs text-slate-400 font-medium">
+            WhatsApp Multi-Device
+          </span>
         </div>
 
-        <div className="text-[11px] text-slate-500 font-mono tracking-tight">
+        <div className="text-[10px] sm:text-[11px] text-slate-500 font-mono tracking-tight">
           © 2026 All Rights Reserved
         </div>
       </div>
